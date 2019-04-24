@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>session和cookie | fluge site</title>
+  
+  
+  <meta name="description" content="积累漫长而艰辛，coding....。">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/css/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  
+  <div class="cover-wrapper">
+    <cover class="cover post half">
+      
+        
+  <h1 class="title">Fluge Site </h1>
+
+
+  <div class="m_search">
+    <form name="searchform" class="form u-search-form">
+      <input type="text" class="input u-search-input" placeholder>
+      <i class="icon fas fa-search fa-fw"></i>
+    </form>
+  </div>
+
+<div class="menu navgation">
+  <ul class="h-list">
+    
+      
+        <li>
+          <a class="nav home" href="/" id="home">
+            <i class="fas fa-rss fa-fw"></i>&nbsp;博文
+          </a>
+        </li>
+      
+        <li>
+          <a class="nav home" href="/projects/" id="projects">
+            <i class="fas fa-code-branch fa-fw"></i>&nbsp;项目
+          </a>
+        </li>
+      
+        <li>
+          <a class="nav home" href="/friends/" rel="nofollow" id="friends">
+            <i class="fas fa-link fa-fw"></i>&nbsp;友链
+          </a>
+        </li>
+      
+        <li>
+          <a class="nav home" href="/about/" rel="nofollow" id="about">
+            <i class="fas fa-info-circle fa-fw"></i>&nbsp;关于
+          </a>
+        </li>
+      
+    
+  </ul>
+</div>
+
+      
+    </cover>
+    <header class="l_header pure">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="pure"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          fluge site
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;示例
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/categories/" rel="nofollow" id="blogcategories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/tags/" rel="nofollow" id="blogtags">
+									<i class="fas fa-hashtag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/archives/" rel="nofollow" id="blogarchives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-clock fa-fw"></i>&nbsp;近期文章
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/blog/archives/" rel="nofollow" id="blogarchives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;文章归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/projects/" id="projects">
+								<i class="fas fa-code-branch fa-fw"></i>&nbsp;开源项目
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-link fa-fw"></i>&nbsp;我的友链
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="https://xaoxuu.com/wiki/material-x/" rel="nofollow" id="https:xaoxuu.comwikimaterial-x">
+								<i class="fas fa-book fa-fw"></i>&nbsp;主题文档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于小站
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+  </div>
+
+
+  <div class="l_body">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2016/12/22/session和cookie/">
+        session和cookie
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <i class="fas fa-user" aria-hidden="true"></i>
+      
+      <p>fluge</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2016-12-22</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/web/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>web</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <h3 id="基本认识"><a href="#基本认识" class="headerlink" title="基本认识"></a>基本认识</h3><p>首先有一点必须特别的清楚： 因为HTTP协议是无状态的，客户每次读取web页面时，服务器都打开新的会话，而且服务器也不会自动维护客户的上下文信息，对于一个浏览器发出的多次请求，WEB服务器无法区分 是不是来源于同一个浏览器，更别说是否是来自同一用户。为了保持用户的状态，有了两种机制，一般用户客户端的cookie机制，和用于服务器端的session机制，这两种机制都是为了保持状态，既有联系又有区别。</p>
+<h3 id="cookie基本实现机制"><a href="#cookie基本实现机制" class="headerlink" title="cookie基本实现机制"></a>cookie基本实现机制</h3><p>现在的cookie是HTTP协议的一部分，一般存在HTTP的响应头，内容是一系列的键值对的形式，简单说：cookie就是服务器在用户的浏览器中存储的一小段文本文件（大小不能超过3K）不包含任何可执行代码，里面一般包含的是用户的登录信息之类的比较少的，用来验证用户是否合法（不止局限与此，cookie是用来记录状态的，也可以是购物的等一系列状态，让服务器知道我们浏览了那些地方，购物对那些感兴趣，一般很多广告都是根据这个东西来推送的，你在某购物网站买了一个东西，然后浏览别的网站，发现广告都是和你浏览的相关）。  cookie的内容主要包括：key-value,Expires（过期时间），path和domain。path和domain一起构成cookie的作用范围。<br><img src="http://ofa8x9gy9.bkt.clouddn.com/cookie.png" alt><br>&emsp;&emsp;&emsp;&emsp;现在的cookie，内容经过加密了<br>cookie的实现流程：  </p>
+<ol>
+<li>浏览器向某个URL发起HTTP请求 （可以是任何请求，比如GET，POST等）</li>
+<li>对应的服务器收到该HTTP请求，并做相应的响应（响应头和请求体两部分），在响应的头中加入<code>Set-Cookie</code>字段（设置相应的cookie，cookie是多个<code>key-value</code>组成的）<a id="more"></a></li>
+<li>浏览器收到来自服务器的HTTP响应</li>
+<li>浏览器在响应头中发现存在<code>Set-Cookie</code>字段，就会将相应的cookie(key-value)保存在内存或者硬盘中。需要注意的是<code>Set-Value</code>字段可以包含多个cookie,每一项都可以指定过期时间，默认的过期的时间是用户浏览器关闭的时候</li>
+<li>浏览器下次给该服务器发送HTTP请求时，会将服务器设置的cookie附加在HTTP请求头<code>Cookie</code>中浏览器可以存储多个不同域名下的Cookie，但只发送当前请求的域名曾经指定的域名，这个可以在<code>Set-Cookie</code>中指定</li>
+<li>服务器收到这个HTTP请求，发现请求头中有<code>Cookie</code>字段，就知道这个用户的状态。获取相应的信息进行响应。<br>这就是整个基本的cookie机制。保存了用户的操作状态，但是还需要注意的是,cookies是通过明文传递。在HTTP包中容易被劫持和伪造，是不安全的，不应该存一些比较重要的东西。还有就是cookie在整个会话都会在HTTP的请求中，增加了流量。     </li>
+</ol>
+<h3 id="session的基本实现机制"><a href="#session的基本实现机制" class="headerlink" title="session的基本实现机制"></a>session的基本实现机制</h3><p>有一个session是不能改变的，是为了维持住HTTP的状态，所以在用户每次发起HTTP请求的时候，都需要让服务器知道是那个用户发起的这个请求，然后查找这个用户的状态，在进行相应的处理。session的实现基于这点，就需要一个唯一的ID标志某个用户（session）然后在这个ID中对应多个键值对来保证用户的状态，所以前后端只需要传递一个sessionId，服务器就可找到对应的状态（这个对应的键值对可以存在redies或者数据库中）。前后端传递值基本有三种：一种是直接写在URL中，一种通过表单中的隐藏域来提交，还有一种是现在流行的做法，通过在cookie中设置一个键值对<code>jsessionId=${sessionId}</code>在传递。现在第一二种都不是很建议这么做，当然在浏览器禁用的情况下也可以通过前面两种来传递，不过一般浏览器都支持使用cookie的方式。 </p>
+<h3 id="两种方式的区别和联系"><a href="#两种方式的区别和联系" class="headerlink" title="两种方式的区别和联系"></a>两种方式的区别和联系</h3><ol>
+<li>cookie数据存放在客户的浏览器上，session数据放在服务器上。</li>
+<li>cookie不是很安全，别人可以分析存放在本地的cookie并进行cookie欺骗，考虑到安全应当使用session。</li>
+<li>session会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能<br>考虑到减轻服务器性能方面，应当使用cookie。</li>
+<li>单个cookie保存的数据不能超过4K，很多浏览器都限制一个站点最多保存20个cookie。<br>联系是：两个都是用来保持HTTP协议状态的方式，一种是客户端的实现，一种是服务器端的实现。但是session可以依赖于cookie来传递sessionId</li>
+</ol>
+<h3 id="一个小项目例子–在微信中开发的小程序（公众号自动回复）里面的session问题"><a href="#一个小项目例子–在微信中开发的小程序（公众号自动回复）里面的session问题" class="headerlink" title="一个小项目例子–在微信中开发的小程序（公众号自动回复）里面的session问题"></a>一个小项目例子–在微信中开发的小程序（公众号自动回复）里面的session问题</h3><p>首先简单描述下小项目:用户在公众号中输入某一个触发关键词（项目里面的例子是：绑定），然后就进入绑定所涉及的流程。用户在公众中输入触发词，是由微信的服务器进行响应，然后转发到程序的服务器。程序的服务器在把处理的结果（用规定的格式）传递给微信的服务器，由微信的服务器进行响应给用户。整个项目用golang开发，简单的使用了beego框架。</p>
+<h4 id="基于session来实现（初始版）"><a href="#基于session来实现（初始版）" class="headerlink" title="基于session来实现（初始版）"></a>基于session来实现（初始版）</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span> <span class="title">Dispatch</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">//进行请求的分发，和request数据的解析,POST</span></span><br><span class="line">	w := <span class="built_in">new</span>(models.WeixinUser)</span><br><span class="line">	xml.Unmarshal(c.Ctx.Input.RequestBody,&amp;w)</span><br><span class="line">	<span class="comment">//第一步是判断是否为开启逻辑的语句，同一个逻辑只能同时开启一次</span></span><br><span class="line">	str:=w.Content</span><br><span class="line">	sc:=c.GetSession(<span class="string">"status-count"</span>).(<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">switch</span> str &#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="string">"绑定"</span>: <span class="comment">//如果匹配进入绑定，判断是否同时开启两次</span></span><br><span class="line">		str0:=<span class="string">""</span></span><br><span class="line">		binds:=assertionInt(c.GetSession(<span class="string">"bindstep"</span>))</span><br><span class="line">		<span class="keyword">if</span> binds==<span class="number">-1</span>&#123;</span><br><span class="line">			c.SetSession(<span class="string">"bindstep"</span>,<span class="keyword">int</span>(<span class="number">1</span>))</span><br><span class="line">			sc++;</span><br><span class="line">			c.SetSession(<span class="string">"status-count"</span>,<span class="keyword">int</span>(sc))</span><br><span class="line">			c.SetSession(<span class="string">"status-"</span>+strconv.Itoa(sc),<span class="keyword">string</span>(<span class="string">"bind"</span>))</span><br><span class="line">			_,str0=bind(c,w)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> str0==<span class="string">""</span>&#123;</span><br><span class="line">			str0=<span class="string">"已经进入绑定流程"</span></span><br><span class="line">		&#125;</span><br><span class="line">		prints(c,w,str0)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//第二步判断有多少个session保持者状态，从0开始计数,输入的数据从最上面的应用进行匹配处理</span></span><br><span class="line">	<span class="keyword">if</span> sc &gt;=<span class="number">0</span> &#123;<span class="comment">//判断是否有触发的逻辑</span></span><br><span class="line">		<span class="keyword">for</span> i:=sc;i&gt;=<span class="number">0</span>;i--&#123;<span class="comment">//进行逻辑匹配</span></span><br><span class="line">			str2:=c.GetSession(<span class="string">"status-"</span>+strconv.Itoa(i)).(<span class="keyword">string</span>)</span><br><span class="line">			<span class="keyword">if</span> str2!=<span class="string">""</span>&#123;</span><br><span class="line">				str1:=<span class="string">" "</span><span class="comment">//进行默认的逻辑处理，不做回应</span></span><br><span class="line">				<span class="keyword">switch</span> str2 &#123;</span><br><span class="line">				<span class="keyword">case</span> <span class="string">"bind"</span>:</span><br><span class="line">					code,src:=bind(c,w)<span class="comment">//code用来处理完成逻辑后的删除session的作用</span></span><br><span class="line">					<span class="keyword">if</span> code==<span class="number">1</span>&#123;</span><br><span class="line">						c.DelSession(<span class="string">"status-"</span>+strconv.Itoa(i))</span><br><span class="line">						c.SetSession(<span class="string">"status-count"</span>,<span class="keyword">int</span>(sc<span class="number">-1</span>))</span><br><span class="line">						sc--;</span><br><span class="line">					&#125;</span><br><span class="line">					str1=src</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> str1 != <span class="string">" "</span>&#123;<span class="comment">//如果进行处理就退出逻辑</span></span><br><span class="line">					prints(c,w,str1)</span><br><span class="line">					<span class="keyword">return</span></span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> str1 ==<span class="string">" "</span>&amp;&amp;i==<span class="number">0</span>&#123;</span><br><span class="line">					str1=<span class="string">"输入格式错误"</span></span><br><span class="line">					prints(c,w,str1)</span><br><span class="line">					<span class="keyword">return</span></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	str=<span class="string">"输入：绑定，可以进入绑定流程"</span></span><br><span class="line">	prints(c,w,str)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">bind</span><span class="params">(c *MainController,w *models.WeixinUser)</span> <span class="params">(<span class="keyword">int</span>,<span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line"><span class="comment">//进行绑定请求的处理，如果匹配不上，退出同时开始另一个逻辑的匹配</span></span><br><span class="line">	step:=c.GetSession(<span class="string">"bindstep"</span>).(<span class="keyword">string</span>)<span class="comment">//内部逻辑计数器，记住用户的处理的位置，从1开始计数</span></span><br><span class="line">	<span class="keyword">if</span> step==<span class="number">1</span>||step==<span class="number">2</span>||step==<span class="number">3</span>||step==<span class="number">4</span>&#123;</span><br><span class="line">		<span class="keyword">switch</span> step &#123;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">1</span>:<span class="comment">//用户输入进入词，进入逻辑</span></span><br><span class="line">			c.SetSession(<span class="string">"bindstep"</span>,<span class="keyword">int</span>(<span class="number">2</span>))</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"请输入手机号，进行绑定"</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">2</span>:<span class="comment">//用户输入了手机号，发送短信，获取验证码</span></span><br><span class="line">			<span class="comment">//todo 验证手机号格式并且发短信验证验证码</span></span><br><span class="line">			ok:=validatePhone(w.Content)</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"手机号格式不正确，请重新输入"</span></span><br><span class="line">			&#125;</span><br><span class="line">			alidayu.AppKey=<span class="string">"*******"</span></span><br><span class="line">			alidayu.AppSecret=<span class="string">"**************"</span></span><br><span class="line">			alidayu.UseHTTP=<span class="literal">true</span></span><br><span class="line">			str:=randNum()<span class="comment">//生成随机4位数字</span></span><br><span class="line">			success,_:=alidayu.SendSMS(w.Content,<span class="string">"德玛西亚"</span>,<span class="string">"********"</span>, <span class="string">`&#123; "code":"`</span>+str+<span class="string">`"&#125;`</span>)</span><br><span class="line">			<span class="keyword">if</span> !success&#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"验证码发送失败，请重新输入手机号"</span></span><br><span class="line">			&#125;</span><br><span class="line">			c.SetSession(<span class="string">"rand"</span>,str)</span><br><span class="line">			f:=models.Fluge&#123;&#125;</span><br><span class="line">			f.Openid=w.FromUserName</span><br><span class="line">			f.Phone=w.Content</span><br><span class="line">			c.SetSession(<span class="string">"fluge"</span>,f)</span><br><span class="line">			c.SetSession(<span class="string">"bindstep"</span>,<span class="keyword">int</span>(<span class="number">3</span>))</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"验证码已发送，请输入验证码完成绑定"</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">3</span>:<span class="comment">//进行验证码的验证，成功就开始绑定</span></span><br><span class="line">			<span class="keyword">if</span> w.Content==c.GetSession(<span class="string">"rand"</span>).(<span class="keyword">string</span>) &#123;</span><br><span class="line">				f:=c.GetSession(<span class="string">"fluge"</span>).(*models.Fluge)</span><br><span class="line">				c.DelSession(<span class="string">"fluge"</span>)</span><br><span class="line">				c.DelSession(<span class="string">"rand"</span>)</span><br><span class="line">				flag,_:=models.CheckUser(f)</span><br><span class="line">				<span class="keyword">if</span> flag &#123;</span><br><span class="line">					str3, err := models.AddUser(f)</span><br><span class="line">					<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">						<span class="keyword">return</span> <span class="number">0</span>, str3</span><br><span class="line">					&#125;</span><br><span class="line">					c.SetSession(<span class="string">"bindstep"</span>, <span class="keyword">int</span>(<span class="number">4</span>))</span><br><span class="line">					<span class="keyword">return</span> <span class="number">0</span>, str3</span><br><span class="line">				&#125;</span><br><span class="line">				c.SetSession(<span class="string">"bindstep"</span>,<span class="keyword">int</span>(<span class="number">2</span>))</span><br><span class="line">				<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"手机号无法重复绑定，请重新输入手机号"</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"验证码错误，请重新输入"</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">4</span>:<span class="comment">//用户已经完成绑定，等待退出</span></span><br><span class="line">			<span class="keyword">if</span> w.Content==<span class="string">"8"</span> &#123;</span><br><span class="line">				c.DelSession(<span class="string">"bindstep"</span>)</span><br><span class="line">				<span class="keyword">return</span> <span class="number">1</span>,<span class="string">"谢谢使用"</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>,<span class="string">"绑定完成，请输入8退出"</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>,<span class="string">" "</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在这个程序是执行不了的。在beego中默认传递sessionId是cookie。但如果我在程序中必须使用session保持用户的状态（不然流程没办法继续下去）。两个服务器之间的交互式没有办法传递cookie。所以就会出现在一直在第一个流程，无法进入第二个流程。  </p>
+<h4 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h4><p>首先明白一点，sessionId的作用是一个唯一标识符，用来标记同一个用户。但是在微信的整个架构中有一个跟sessionId很类似的东西:openid:用户对于某个公众号唯一的标识。所以在微信服务器向程序的服务器提交POST消息市本身也会自带这个openid。这样就为解决session提供了遍历。<br>不需要额外去产生和传递sessionId。直接使用openid来作为用户的唯一标识符。<br><img src="http://ofa8x9gy9.bkt.clouddn.com/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E6%8E%A5%E5%8F%97%E6%B6%88%E6%81%AF.png" alt><br>然后对于sessionId对应的具体内容我选择了方便的redis来存储<br>实现代码–直接复写了beego的Getseeion和SetSession方法    </p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span><span class="title">initSession</span><span class="params">(sid <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	config := &amp;redissession.SessionConfig&#123;</span><br><span class="line">		Prefix:<span class="string">"lyfluge-"</span>,</span><br><span class="line">		RedisHost:<span class="string">"**********"</span>,</span><br><span class="line">		RedisPassword:<span class="string">"f***********"</span>,</span><br><span class="line">		LifeTime: <span class="number">60</span> * time.Second,</span><br><span class="line">	&#125;</span><br><span class="line">	c.sesion = redissession.NewSession(<span class="string">"redis"</span>,config)</span><br><span class="line">	c.sesion.SetSessionID(sid)</span><br><span class="line">	c.sesion.Start()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span><span class="title">storeSession</span><span class="params">()</span></span> &#123;</span><br><span class="line">	c.sesion.Store()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span> <span class="title">SetSession</span><span class="params">(str <span class="keyword">string</span>,value <span class="keyword">interface</span>&#123;&#125;)</span><span class="title">interface</span></span>&#123;&#125;&#123;</span><br><span class="line">	<span class="keyword">return</span> c.sesion.Set(str,value)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span> <span class="title">GetSession</span><span class="params">(str <span class="keyword">string</span>)</span> <span class="title">interface</span></span>&#123;&#125;&#123;</span><br><span class="line">	<span class="keyword">return</span> c.sesion.Get(str)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span> <span class="title">DelSession</span><span class="params">(str <span class="keyword">string</span>)</span> <span class="title">interface</span></span>&#123;&#125;&#123;</span><br><span class="line">	<span class="keyword">return</span> c.sesion.Delete(str)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//在Dispatch函数中取到对应的sessionId，然后进行状态判断</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *MainController)</span> <span class="title">Dispatch</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">//进行请求的分发，和request数据的解析.POST</span></span><br><span class="line">	w := <span class="built_in">new</span>(models.WeixinUser)</span><br><span class="line">	xml.Unmarshal(c.Ctx.Input.RequestBody,&amp;w)</span><br><span class="line">	c.initSession(w.FromUserName)</span><br><span class="line">   /..../</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完整代码(包括微信golang的接入,大鱼短信,beego,session-redis的具体实现):</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>session中的sessionId是用来标志唯一用户的。通过找到这个用户来判断用户的状态  </p>
+<hr>
+<p>参考:<a href="http://harttle.com/2015/08/10/cookie-session.html" target="_blank" rel="noopener">Cookie/Session的机制与安全</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-24T14:43:52+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 Apr 24, 2019</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/session/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>session</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/cookie/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>cookie</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2016/12/22/session和cookie/&title=session和cookie | fluge site&summary=基本认识首先有一点必须特别的清楚： 因为HTTP协议是无状态的，客户每次读取web页面时，服务器都打开新的会话，而且服务器也不会自动维护客户的上下文信息，对于一个浏览器发出的多次请求，WEB服务器无法区分 是不是来源于同一个浏览器，更别说是否是来自同一用户。为了保持用户的状态，有了两种机制，一般用户客户端的cookie机制，和用于服务器端的session机制，这两种机制都是为了保持状态，既有联系又有区别。
+cookie基本实现机制现在的cookie是HTTP协议的一部分，一般存在HTTP的响应头，内容是一系列的键值对的形式，简单说：cookie就是服务器在用户的浏览器中存储的一小段文本文件（大小不能超过3K）不包含任何可执行代码，里面一般包含的是用户的登录信息之类的比较少的，用来验证用户是否合法（不止局限与此，cookie是用来记录状态的，也可以是购物的等一系列状态，让服务器知道我们浏览了那些地方，购物对那些感兴趣，一般很多广告都是根据这个东西来推送的，你在某购物网站买了一个东西，然后浏览别的网站，发现广告都是和你浏览的相关）。  cookie的内容主要包括：key-value,Expires（过期时间），path和domain。path和domain一起构成cookie的作用范围。&emsp;&emsp;&emsp;&emsp;现在的cookie，内容经过加密了cookie的实现流程：  
+
+浏览器向某个URL发起HTTP请求 （可以是任何请求，比如GET，POST等）
+对应的服务器收到该HTTP请求，并做相应的响应（响应头和请求体两部分），在响应的头中加入Set-Cookie字段（设置相应的cookie，cookie是多个key-value组成的）">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2016/12/22/session和cookie/&title=session和cookie | fluge site&summary=基本认识首先有一点必须特别的清楚： 因为HTTP协议是无状态的，客户每次读取web页面时，服务器都打开新的会话，而且服务器也不会自动维护客户的上下文信息，对于一个浏览器发出的多次请求，WEB服务器无法区分 是不是来源于同一个浏览器，更别说是否是来自同一用户。为了保持用户的状态，有了两种机制，一般用户客户端的cookie机制，和用于服务器端的session机制，这两种机制都是为了保持状态，既有联系又有区别。
+cookie基本实现机制现在的cookie是HTTP协议的一部分，一般存在HTTP的响应头，内容是一系列的键值对的形式，简单说：cookie就是服务器在用户的浏览器中存储的一小段文本文件（大小不能超过3K）不包含任何可执行代码，里面一般包含的是用户的登录信息之类的比较少的，用来验证用户是否合法（不止局限与此，cookie是用来记录状态的，也可以是购物的等一系列状态，让服务器知道我们浏览了那些地方，购物对那些感兴趣，一般很多广告都是根据这个东西来推送的，你在某购物网站买了一个东西，然后浏览别的网站，发现广告都是和你浏览的相关）。  cookie的内容主要包括：key-value,Expires（过期时间），path和domain。path和domain一起构成cookie的作用范围。&emsp;&emsp;&emsp;&emsp;现在的cookie，内容经过加密了cookie的实现流程：  
+
+浏览器向某个URL发起HTTP请求 （可以是任何请求，比如GET，POST等）
+对应的服务器收到该HTTP请求，并做相应的响应（响应头和请求体两部分），在响应的头中加入Set-Cookie字段（设置相应的cookie，cookie是多个key-value组成的）">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2016/12/22/session和cookie/&title=session和cookie | fluge site&summary=基本认识首先有一点必须特别的清楚： 因为HTTP协议是无状态的，客户每次读取web页面时，服务器都打开新的会话，而且服务器也不会自动维护客户的上下文信息，对于一个浏览器发出的多次请求，WEB服务器无法区分 是不是来源于同一个浏览器，更别说是否是来自同一用户。为了保持用户的状态，有了两种机制，一般用户客户端的cookie机制，和用于服务器端的session机制，这两种机制都是为了保持状态，既有联系又有区别。
+cookie基本实现机制现在的cookie是HTTP协议的一部分，一般存在HTTP的响应头，内容是一系列的键值对的形式，简单说：cookie就是服务器在用户的浏览器中存储的一小段文本文件（大小不能超过3K）不包含任何可执行代码，里面一般包含的是用户的登录信息之类的比较少的，用来验证用户是否合法（不止局限与此，cookie是用来记录状态的，也可以是购物的等一系列状态，让服务器知道我们浏览了那些地方，购物对那些感兴趣，一般很多广告都是根据这个东西来推送的，你在某购物网站买了一个东西，然后浏览别的网站，发现广告都是和你浏览的相关）。  cookie的内容主要包括：key-value,Expires（过期时间），path和domain。path和domain一起构成cookie的作用范围。&emsp;&emsp;&emsp;&emsp;现在的cookie，内容经过加密了cookie的实现流程：  
+
+浏览器向某个URL发起HTTP请求 （可以是任何请求，比如GET，POST等）
+对应的服务器收到该HTTP请求，并做相应的响应（响应头和请求体两部分），在响应的头中加入Set-Cookie字段（设置相应的cookie，cookie是多个key-value组成的）">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2017/01/18/并发系列(一) Java7的ConcurrentHashMap/" rel="prev" title="并发系列(一) Java7的ConcurrentHashMap">
+                                  
+                                      并发系列(一) Java7的ConcurrentHashMap
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Java/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>Java</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2016/12/15/HashMap并发的死循环/" rel="prev" title="HashMap的并发死循环">
+                                    
+                                        HashMap的并发死循环
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Java/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>Java</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+      
+        <section id="comments">
+          <div id="gitalk-container"></div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'session和cookie',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content pure">
+    
+      <div class="avatar">
+        <img class="avatar" src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/avatar/avatar.png">
+      </div>
+    
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="/atom.xml" class="social fas fa-rss flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="mailto:lyfluge@outlook.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/fluge" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="pure">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content pure">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本认识"><span class="toc-text">基本认识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cookie基本实现机制"><span class="toc-text">cookie基本实现机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session的基本实现机制"><span class="toc-text">session的基本实现机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#两种方式的区别和联系"><span class="toc-text">两种方式的区别和联系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一个小项目例子–在微信中开发的小程序（公众号自动回复）里面的session问题"><span class="toc-text">一个小项目例子–在微信中开发的小程序（公众号自动回复）里面的session问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基于session来实现（初始版）"><span class="toc-text">基于session来实现（初始版）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决"><span class="toc-text">解决</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="pure">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content pure">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/blog/archives/" href="/blog/archives/" rel="nofollow" id="blogarchives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/projects/" href="/projects/" id="projects">
+          
+            <i class="fas fa-code-branch fa-fw" aria-hidden="true"></i>
+          
+          开源项目
+        </a></li>
+      
+        <li><a class="flat-box" title="/friends/" href="/friends/" rel="nofollow" id="friends">
+          
+            <i class="fas fa-link fa-fw" aria-hidden="true"></i>
+          
+          我的友链
+        </a></li>
+      
+        <li><a class="flat-box" title="https://xaoxuu.com/wiki/material-x/" href="https://xaoxuu.com/wiki/material-x/" rel="nofollow" id="https:xaoxuu.comwikimaterial-x">
+          
+            <i class="fas fa-book fa-fw" aria-hidden="true"></i>
+          
+          主题文档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于小站
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="pure">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/blog/categories/" title="blog/categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Java/" href="/categories/Java/"><div class="name">Java</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Java和golang/" href="/categories/Java和golang/"><div class="name">Java和golang</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/TCP-IP/" href="/categories/TCP-IP/"><div class="name">TCP/IP</div><div class="badge">(5)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Web/" href="/categories/Web/"><div class="name">Web</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/essay/" href="/categories/essay/"><div class="name">essay</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/web/" href="/categories/web/"><div class="name">web</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="pure">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/blog/tags/" title="blog/tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 20.67px; color: #6c6c6c">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 17.33px; color: #828282">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+
+
+  <section class="widget music">
+    
+<header class="pure">
+  <div><i class="fas fa-compact-disc fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;喜欢的歌</div>
+  
+    <a class="rightBtn" rel="external nofollow noopener noreferrer" target="_blank" href="https://music.163.com/#/user/home?id=310705177" title="https://music.163.com/#/user/home?id=310705177">
+    <i class="far fa-heart fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.7.0/dist/APlayer.min.css">
+  <div class="aplayer" data-theme="#1BCDFC" data-mode="circulation" data-server="netease" data-type="playlist" data-id="431681439" data-volume="0.7">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/aplayer@1.7.0/dist/APlayer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meting@1.1.0/dist/Meting.min.js"></script>
+
+
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="/atom.xml" class="social fas fa-rss flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="mailto:lyfluge@outlook.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/fluge" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+</footer>
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: "9c67a640993b2f5c0c57",
+      clientSecret: "89cbdf00e26a288e724661d2adf21e4df975a1e5",
+      repo: "https://github.com/fluge/fluge.github.io",
+      owner: "fluge",
+      admin: "fluge",
+      
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+      
+      distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+    gitalk.render('gitalk-container');
+  </script>
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

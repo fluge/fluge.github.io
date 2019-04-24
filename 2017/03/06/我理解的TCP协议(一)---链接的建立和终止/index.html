@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>我理解的TCP协议(一)---链接的建立和终止 | fluge site</title>
+  
+  
+  <meta name="description" content="积累漫长而艰辛，coding....。">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/css/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  
+  <div class="cover-wrapper">
+    <cover class="cover post half">
+      
+        
+  <h1 class="title">Fluge Site </h1>
+
+
+  <div class="m_search">
+    <form name="searchform" class="form u-search-form">
+      <input type="text" class="input u-search-input" placeholder>
+      <i class="icon fas fa-search fa-fw"></i>
+    </form>
+  </div>
+
+<div class="menu navgation">
+  <ul class="h-list">
+    
+      
+        <li>
+          <a class="nav home" href="/" id="home">
+            <i class="fas fa-rss fa-fw"></i>&nbsp;博文
+          </a>
+        </li>
+      
+        <li>
+          <a class="nav home" href="/projects/" id="projects">
+            <i class="fas fa-code-branch fa-fw"></i>&nbsp;项目
+          </a>
+        </li>
+      
+        <li>
+          <a class="nav home" href="/friends/" rel="nofollow" id="friends">
+            <i class="fas fa-link fa-fw"></i>&nbsp;友链
+          </a>
+        </li>
+      
+        <li>
+          <a class="nav home" href="/about/" rel="nofollow" id="about">
+            <i class="fas fa-info-circle fa-fw"></i>&nbsp;关于
+          </a>
+        </li>
+      
+    
+  </ul>
+</div>
+
+      
+    </cover>
+    <header class="l_header pure">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="pure"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          fluge site
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;示例
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/categories/" rel="nofollow" id="blogcategories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/tags/" rel="nofollow" id="blogtags">
+									<i class="fas fa-hashtag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/archives/" rel="nofollow" id="blogarchives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-clock fa-fw"></i>&nbsp;近期文章
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/blog/archives/" rel="nofollow" id="blogarchives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;文章归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/projects/" id="projects">
+								<i class="fas fa-code-branch fa-fw"></i>&nbsp;开源项目
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-link fa-fw"></i>&nbsp;我的友链
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="https://xaoxuu.com/wiki/material-x/" rel="nofollow" id="https:xaoxuu.comwikimaterial-x">
+								<i class="fas fa-book fa-fw"></i>&nbsp;主题文档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于小站
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+  </div>
+
+
+  <div class="l_body">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2017/03/06/我理解的TCP协议(一)---链接的建立和终止/">
+        我理解的TCP协议(一)---链接的建立和终止
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <i class="fas fa-user" aria-hidden="true"></i>
+      
+      <p>fluge</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2017-03-06</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/TCP-IP/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>TCP/IP</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>TCP是一个非常复杂的面向连接的协议,在很30多年来，各种优化变种争论和修改不断,所以我先从连接的建立和终止开始写TCP。后面应该还有几篇文章写TCP的另外几个特别重要的特性。<br>TCP最开始被我知道就先从很有特点的链接建立和终止—三次握手和四次挥手,基本上TCP协议的可靠性就是从保证连接的可靠性开始的。  </p>
+<h3 id="TCP链接的建立—三次握手"><a href="#TCP链接的建立—三次握手" class="headerlink" title="TCP链接的建立—三次握手"></a>TCP链接的建立—三次握手</h3><p>对于三次握手，其实是TCP比较著名的东西了,在完全不了解这个TCP的时候就知道有这个东西了，但是开始的时候总有一点让我非常的疑惑:TCP为什么是三次握手,为什么不是两次或四次？  </p>
+<h4 id="TCP-为什么是三次握手-为什么不是两次或四次？"><a href="#TCP-为什么是三次握手-为什么不是两次或四次？" class="headerlink" title="TCP 为什么是三次握手,为什么不是两次或四次？"></a>TCP 为什么是三次握手,为什么不是两次或四次？</h4><p>要解释这个问题,首先明白TCP出现的价值和思路:是<code>为了在不可靠的互联网络上提供一个可靠的端到端字节流而设计的</code>,<code>并且一个TCP连接是全双工</code>。这是TCP很重要的一个设计理念:提供了一种<code>可靠的</code>,<code>面向连接的</code>字节流运输层服务,并且是双全工的。这里需要理解双全工的意思：就是两端之间进行通信，这两端既可以是数据的接收方，也可以是数据的发送方。<br>1、 可靠模型:但是为了数据的安全送达，就必须在发送数据前向另一个端口进行通信</p>
+<blockquote>
+<p>数据发送端A:嘿,我想发送数据了,可以么。<br>数据接收端B:好的，这边允许接受。  </p>
+</blockquote>
+<p>然后数据的发送端就可以发送数据了,这里就基本保证你发的在接收方会正常的接受并不会发错。这是发送数据的<code>基本可靠模型</code>。<br>2、 连接模型:在TCP的要求中,需要一种面向连接的通信:<code>连接</code>在我理解中就是相当于有一根空水管,连接两个水池(为两个水池传输东西),在水管中传输东西的效率肯定会高于用桶去一桶桶的装,来的方便。<br><a id="more"></a><br>这两个模型联系起来:就是当两个水池之间要进行交换东西的时候,需要有一个水管去保持两边的交换的效率。这个时候就把水管的一边和一个水池相连(用水管的另一边进行可靠模型的验证)，如果验证通过在把另一边进行相连，然后再去用可靠模型验证。都通过就说明整个链接水管工作完成了。可以正常的工作。<br>在上面的水管是虚拟的不存在的，抽象出整个可靠模型，然后简化整个过程:A,B连个端口</p>
+<blockquote>
+<p>A:我想向你发送数据，可以么。<br>B:可以啊。（第一次可靠验证结束）<br>B:我想向你发送数据，可以么。<br>A:可以啊。 (第二次可靠验证结束)  </p>
+</blockquote>
+<p>然后上面的过程其实可以进一步的优化就是把两次的可靠验证结合在一起:中间两次的B的发送数据显然可以合并为一次数据发送。<br>上面就是我对为什么是三次握手,为什么不是两次或四次的理解的一个方向。两次握手只能让链接的一端发送的数据的是可信的，四次握手就显得有点多余。  </p>
+<h4 id="TCP的三次握手具体过程"><a href="#TCP的三次握手具体过程" class="headerlink" title="TCP的三次握手具体过程"></a>TCP的三次握手具体过程</h4><p>TCP的三次握手除了要建立可靠的连接外还有就是初始化SYN(传输数据的包的序号)。也就下图中的<code>x</code>和<code>y</code>。这个号要作为以后的数据通信的序号，以保证应用层接收到的数据不会因为网络上的传输的问题而乱序（TCP会用这个序号来拼接数据）。<br><img src="http://ofa8x9gy9.bkt.clouddn.com/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%92%8C%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B.jpg" alt><br>基本过程:</p>
+<ol>
+<li>第一次握手：客户端发送syn包(syn=x)到服务器，并进入SYN_SEND状态，等待服务器确认；</li>
+<li>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=x+1），同时自己也发送一个SYN包（syn=y），即SYN+ACK包，此时服务器进入SYN_RECV状态；</li>
+<li>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=y+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。<br>在握手值得注意的是:</li>
+<li>关于建连接时SYN超时。如果服务端接到了客户端发的SYN后回了ACK后client掉线了，服务器端没有收到客户端回来的ACK(第二次握手完成)，那么，这个连接处于一个中间状态，即没成功，也没失败。于是,服务器端如果在一定时间内没有收到的TCP会重发ACK。在Linux下，默认重试次数为5次,重试的间隔时间从1s开始每次都翻倍,5次的重试时间间隔为1s,2s,4s,8s,16s,总共31s,第5次发出后还要等32s都知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s = 2^6 -1 = 63s，TCP才会把断开这个连接。</li>
+<li>关于SYN Flood攻击。一些恶意的人就为此制造了SYN Flood攻击——给服务器发了一个SYN后，就下线了，于是服务器需要默认等63s才会断开连接，这样，攻击者就可以把服务器的syn连接的队列耗尽，让正常的连接请求不能处理。于是，Linux下给了一个叫tcp_syncookies参数来应对这个事——当SYN队列满了后,TCP会通过源地址端口、目标地址端口和时间戳打造出一个特别的Sequence Number发回去(又叫cookie),如果是攻击者则不会有响应，如果是正常连接，则会把这个 SYN Cookie发回来,然后服务端可以通过cookie建连接(即使你不在SYN队列中)。请注意,请先千万别用tcp_syncookies来处理正常的大负载的连接的情况。因为,synccookies是妥协版的TCP协议，并不严谨。对于正常的请求，你应该调整三个TCP参数可供你选择,第一个是:tcp_synack_retries可以用他来减少重试次数；第二个是:tcp_max_syn_backlog,可以增大SYN连接数;第三个是:tcp_abort_on_overflow处理不过来干脆就直接拒绝连接了。<h3 id="TCP链接的终止—四次挥手"><a href="#TCP链接的终止—四次挥手" class="headerlink" title="TCP链接的终止—四次挥手"></a>TCP链接的终止—四次挥手</h3>挥手过程就很好理解了，TCP是双全工的。发送方和接收方都需要Fin和Ack。只不过，有一方是被动的，所以看上去就成了所谓的4次挥手。如果两边同时断连接，那就会就进入到CLOSING状态，然后到达TIME_WAIT状态。<blockquote>
+<p>A：兄弟我的数据传送完了<br>B：收到了—-过了一会B的数据也传完了<br>B：兄弟我数据传完了<br>A：好的收到了   </p>
+</blockquote>
+</li>
+</ol>
+<p><img src="http://ofa8x9gy9.bkt.clouddn.com/TCP%E7%8A%B6%E6%80%81%E6%9C%BA.png" alt><br>在里面需要注意的是:关于<code>MSL</code>和<code>TIME_WAIT</code>。我们注意到，在TCP的状态图中，从<code>TIME_WAIT</code>状态到<code>CLOSED</code>状态,有一个超时设置,这个超时设置是 <code>2*MSL</code>（RFC793定义了MSL为2分钟，Linux设置成了30s）为什么要这有<code>TIME_WAIT</code>？为什么不直接给转成CLOSED状态呢？主要有两个原因：1）<code>TIME_WAIT</code>确保有足够的时间让对端收到了ACK，如果被动关闭的那方没有收到Ack，就会触发被动端重发Fin，一来一去正好2个MSL，2）有足够的时间让这个连接不会跟后面的连接混在一起（你要知道，有些自做主张的路由器会缓存IP数据包，如果连接被重用了，那么这些延迟收到的包就有可能会跟新连接混在一起）。</p>
+<h3 id="关于TCP的长链接与短连接"><a href="#关于TCP的长链接与短连接" class="headerlink" title="关于TCP的长链接与短连接"></a>关于TCP的长链接与短连接</h3><p>TCP的链接都是通过三次握手和四次挥手建立的，在一般情况下一般TCP是建立的短连接，一次数据传完就断开，这样也方便链接的管理。但是在某些需要频繁的交换数据的场景，这样就会浪费很多时间和资源在链接的建立和断开，所以这个时候就适合使用长连接进行通信。</p>
+<h4 id="短连接"><a href="#短连接" class="headerlink" title="短连接"></a>短连接</h4><p>一般短连接是client向server发起连接请求，和server通过三次握手，建立连接。client和server两边进行一次通信，然后一次读写就完成了。通常这时候双方都可以发送FIN进行关闭连接，但是一般情况下都是client先进行发送，一般server不会回复完ACK后立即关闭连接，server端会在数据发送完后发送FIN进行关闭，一般一个链接进行一次通信，这样链接的管理比较方便，不需要额外的控制手段。</p>
+<h4 id="长链接"><a href="#长链接" class="headerlink" title="长链接"></a>长链接</h4><p>长链接的情况比短连接复杂，client和server建立链接后，进行一次通信，在通信完成后，双方都不会发送FIN关闭链接，后续通信也可以继续使用该链接。而且链接的保活一般都是在server端进行的，在不进行通信的时候，server是处于一个半链接的状态，这个时候的server应该通过某种办法去获取client的状态，用来判断这个链接是否该关闭，不然对server资源占用是非常严重的，而且也非常没有必要，这个也叫TCP的保活。<br>TCP的保活一般有两种办法:<br>1、在应用层建立心跳机制:client在隔一段时间向server发送一次心跳包(一般都是很小的包，或者只包含包头的一个空包)，让server知道此时client的状态，server可以不对心跳包进行处理。<br>2、TCP协议的<code>KeepAlive</code>机制：当建立一个TCP连接时设置后<code>keepalive</code>后，就会将一系列的定时器与该连接相关联。这些定时器中某些用于处理keepalive过程。当keepalive定时器变为0时，client会发送一个<code>keepalive</code> 探针包（probe packet）到server，server在收到包后，会回应一个ACK。</p>
+<hr>
+<p>参考:<a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="noopener">TCP 的那些事儿（上）</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-24T14:43:52+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 Apr 24, 2019</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/TCP/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>TCP</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2017/03/06/我理解的TCP协议(一)---链接的建立和终止/&title=我理解的TCP协议(一)---链接的建立和终止 | fluge site&summary=TCP是一个非常复杂的面向连接的协议,在很30多年来，各种优化变种争论和修改不断,所以我先从连接的建立和终止开始写TCP。后面应该还有几篇文章写TCP的另外几个特别重要的特性。TCP最开始被我知道就先从很有特点的链接建立和终止—三次握手和四次挥手,基本上TCP协议的可靠性就是从保证连接的可靠性开始的。  
+TCP链接的建立—三次握手对于三次握手，其实是TCP比较著名的东西了,在完全不了解这个TCP的时候就知道有这个东西了，但是开始的时候总有一点让我非常的疑惑:TCP为什么是三次握手,为什么不是两次或四次？  
+TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问题,首先明白TCP出现的价值和思路:是为了在不可靠的互联网络上提供一个可靠的端到端字节流而设计的,并且一个TCP连接是全双工。这是TCP很重要的一个设计理念:提供了一种可靠的,面向连接的字节流运输层服务,并且是双全工的。这里需要理解双全工的意思：就是两端之间进行通信，这两端既可以是数据的接收方，也可以是数据的发送方。1、 可靠模型:但是为了数据的安全送达，就必须在发送数据前向另一个端口进行通信
+
+数据发送端A:嘿,我想发送数据了,可以么。数据接收端B:好的，这边允许接受。  
+
+然后数据的发送端就可以发送数据了,这里就基本保证你发的在接收方会正常的接受并不会发错。这是发送数据的基本可靠模型。2、 连接模型:在TCP的要求中,需要一种面向连接的通信:连接在我理解中就是相当于有一根空水管,连接两个水池(为两个水池传输东西),在水管中传输东西的效率肯定会高于用桶去一桶桶的装,来的方便。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2017/03/06/我理解的TCP协议(一)---链接的建立和终止/&title=我理解的TCP协议(一)---链接的建立和终止 | fluge site&summary=TCP是一个非常复杂的面向连接的协议,在很30多年来，各种优化变种争论和修改不断,所以我先从连接的建立和终止开始写TCP。后面应该还有几篇文章写TCP的另外几个特别重要的特性。TCP最开始被我知道就先从很有特点的链接建立和终止—三次握手和四次挥手,基本上TCP协议的可靠性就是从保证连接的可靠性开始的。  
+TCP链接的建立—三次握手对于三次握手，其实是TCP比较著名的东西了,在完全不了解这个TCP的时候就知道有这个东西了，但是开始的时候总有一点让我非常的疑惑:TCP为什么是三次握手,为什么不是两次或四次？  
+TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问题,首先明白TCP出现的价值和思路:是为了在不可靠的互联网络上提供一个可靠的端到端字节流而设计的,并且一个TCP连接是全双工。这是TCP很重要的一个设计理念:提供了一种可靠的,面向连接的字节流运输层服务,并且是双全工的。这里需要理解双全工的意思：就是两端之间进行通信，这两端既可以是数据的接收方，也可以是数据的发送方。1、 可靠模型:但是为了数据的安全送达，就必须在发送数据前向另一个端口进行通信
+
+数据发送端A:嘿,我想发送数据了,可以么。数据接收端B:好的，这边允许接受。  
+
+然后数据的发送端就可以发送数据了,这里就基本保证你发的在接收方会正常的接受并不会发错。这是发送数据的基本可靠模型。2、 连接模型:在TCP的要求中,需要一种面向连接的通信:连接在我理解中就是相当于有一根空水管,连接两个水池(为两个水池传输东西),在水管中传输东西的效率肯定会高于用桶去一桶桶的装,来的方便。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2017/03/06/我理解的TCP协议(一)---链接的建立和终止/&title=我理解的TCP协议(一)---链接的建立和终止 | fluge site&summary=TCP是一个非常复杂的面向连接的协议,在很30多年来，各种优化变种争论和修改不断,所以我先从连接的建立和终止开始写TCP。后面应该还有几篇文章写TCP的另外几个特别重要的特性。TCP最开始被我知道就先从很有特点的链接建立和终止—三次握手和四次挥手,基本上TCP协议的可靠性就是从保证连接的可靠性开始的。  
+TCP链接的建立—三次握手对于三次握手，其实是TCP比较著名的东西了,在完全不了解这个TCP的时候就知道有这个东西了，但是开始的时候总有一点让我非常的疑惑:TCP为什么是三次握手,为什么不是两次或四次？  
+TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问题,首先明白TCP出现的价值和思路:是为了在不可靠的互联网络上提供一个可靠的端到端字节流而设计的,并且一个TCP连接是全双工。这是TCP很重要的一个设计理念:提供了一种可靠的,面向连接的字节流运输层服务,并且是双全工的。这里需要理解双全工的意思：就是两端之间进行通信，这两端既可以是数据的接收方，也可以是数据的发送方。1、 可靠模型:但是为了数据的安全送达，就必须在发送数据前向另一个端口进行通信
+
+数据发送端A:嘿,我想发送数据了,可以么。数据接收端B:好的，这边允许接受。  
+
+然后数据的发送端就可以发送数据了,这里就基本保证你发的在接收方会正常的接受并不会发错。这是发送数据的基本可靠模型。2、 连接模型:在TCP的要求中,需要一种面向连接的通信:连接在我理解中就是相当于有一根空水管,连接两个水池(为两个水池传输东西),在水管中传输东西的效率肯定会高于用桶去一桶桶的装,来的方便。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2017/08/29/我理解的TCP协议(三)---滑动窗口以及拥塞控制/" rel="prev" title="我理解的TCP协议(三)---滑动窗口以及拥塞控制">
+                                  
+                                      我理解的TCP协议(三)---滑动窗口以及拥塞控制
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/TCP/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>TCP</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2017/02/08/我理解的TCP协议(二)---重传/" rel="prev" title="我理解的TCP协议(二)---超时与重传">
+                                    
+                                        我理解的TCP协议(二)---超时与重传
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/TCP/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>TCP</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+      
+        <section id="comments">
+          <div id="gitalk-container"></div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: '我理解的TCP协议(一)---链接的建立和终止',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content pure">
+    
+      <div class="avatar">
+        <img class="avatar" src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/avatar/avatar.png">
+      </div>
+    
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="/atom.xml" class="social fas fa-rss flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="mailto:lyfluge@outlook.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/fluge" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="pure">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content pure">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP链接的建立—三次握手"><span class="toc-text">TCP链接的建立—三次握手</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#TCP-为什么是三次握手-为什么不是两次或四次？"><span class="toc-text">TCP 为什么是三次握手,为什么不是两次或四次？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TCP的三次握手具体过程"><span class="toc-text">TCP的三次握手具体过程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP链接的终止—四次挥手"><span class="toc-text">TCP链接的终止—四次挥手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于TCP的长链接与短连接"><span class="toc-text">关于TCP的长链接与短连接</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#短连接"><span class="toc-text">短连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#长链接"><span class="toc-text">长链接</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="pure">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content pure">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/blog/archives/" href="/blog/archives/" rel="nofollow" id="blogarchives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/projects/" href="/projects/" id="projects">
+          
+            <i class="fas fa-code-branch fa-fw" aria-hidden="true"></i>
+          
+          开源项目
+        </a></li>
+      
+        <li><a class="flat-box" title="/friends/" href="/friends/" rel="nofollow" id="friends">
+          
+            <i class="fas fa-link fa-fw" aria-hidden="true"></i>
+          
+          我的友链
+        </a></li>
+      
+        <li><a class="flat-box" title="https://xaoxuu.com/wiki/material-x/" href="https://xaoxuu.com/wiki/material-x/" rel="nofollow" id="https:xaoxuu.comwikimaterial-x">
+          
+            <i class="fas fa-book fa-fw" aria-hidden="true"></i>
+          
+          主题文档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于小站
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="pure">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/blog/categories/" title="blog/categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Java/" href="/categories/Java/"><div class="name">Java</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Java和golang/" href="/categories/Java和golang/"><div class="name">Java和golang</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/TCP-IP/" href="/categories/TCP-IP/"><div class="name">TCP/IP</div><div class="badge">(5)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Web/" href="/categories/Web/"><div class="name">Web</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/essay/" href="/categories/essay/"><div class="name">essay</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/web/" href="/categories/web/"><div class="name">web</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="pure">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/blog/tags/" title="blog/tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 20.67px; color: #6c6c6c">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 17.33px; color: #828282">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+
+
+  <section class="widget music">
+    
+<header class="pure">
+  <div><i class="fas fa-compact-disc fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;喜欢的歌</div>
+  
+    <a class="rightBtn" rel="external nofollow noopener noreferrer" target="_blank" href="https://music.163.com/#/user/home?id=310705177" title="https://music.163.com/#/user/home?id=310705177">
+    <i class="far fa-heart fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.7.0/dist/APlayer.min.css">
+  <div class="aplayer" data-theme="#1BCDFC" data-mode="circulation" data-server="netease" data-type="playlist" data-id="431681439" data-volume="0.7">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/aplayer@1.7.0/dist/APlayer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meting@1.1.0/dist/Meting.min.js"></script>
+
+
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="/atom.xml" class="social fas fa-rss flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="mailto:lyfluge@outlook.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/fluge" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+</footer>
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: "9c67a640993b2f5c0c57",
+      clientSecret: "89cbdf00e26a288e724661d2adf21e4df975a1e5",
+      repo: "https://github.com/fluge/fluge.github.io",
+      owner: "fluge",
+      admin: "fluge",
+      
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+      
+      distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+    gitalk.render('gitalk-container');
+  </script>
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
