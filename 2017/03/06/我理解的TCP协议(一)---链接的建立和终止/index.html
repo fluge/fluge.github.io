@@ -140,7 +140,7 @@
 			
 				<div class="m_search">
 					<form name="searchform" class="form u-search-form">
-						<input type="text" class="input u-search-input" placeholder="搜索">
+						<input type="text" class="input u-search-input" placeholder="Search">
 						<i class="icon fas fa-search fa-fw"></i>
 					</form>
 				</div>
@@ -331,13 +331,17 @@
 <ol>
 <li>第一次握手：客户端发送syn包(syn=x)到服务器，并进入SYN_SEND状态，等待服务器确认；</li>
 <li>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=x+1），同时自己也发送一个SYN包（syn=y），即SYN+ACK包，此时服务器进入SYN_RECV状态；</li>
-<li>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=y+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。<br>在握手值得注意的是:</li>
+<li>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=y+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。</li>
+</ol>
+<p>在握手中值得注意的细节是:</p>
+<ol>
 <li>关于建连接时SYN超时。如果服务端接到了客户端发的SYN后回了ACK后client掉线了，服务器端没有收到客户端回来的ACK(第二次握手完成)，那么，这个连接处于一个中间状态，即没成功，也没失败。于是,服务器端如果在一定时间内没有收到的TCP会重发ACK。在Linux下，默认重试次数为5次,重试的间隔时间从1s开始每次都翻倍,5次的重试时间间隔为1s,2s,4s,8s,16s,总共31s,第5次发出后还要等32s都知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s = 2^6 -1 = 63s，TCP才会把断开这个连接。</li>
-<li>关于SYN Flood攻击。一些恶意的人就为此制造了SYN Flood攻击——给服务器发了一个SYN后，就下线了，于是服务器需要默认等63s才会断开连接，这样，攻击者就可以把服务器的syn连接的队列耗尽，让正常的连接请求不能处理。于是，Linux下给了一个叫tcp_syncookies参数来应对这个事——当SYN队列满了后,TCP会通过源地址端口、目标地址端口和时间戳打造出一个特别的Sequence Number发回去(又叫cookie),如果是攻击者则不会有响应，如果是正常连接，则会把这个 SYN Cookie发回来,然后服务端可以通过cookie建连接(即使你不在SYN队列中)。请注意,请先千万别用tcp_syncookies来处理正常的大负载的连接的情况。因为,synccookies是妥协版的TCP协议，并不严谨。对于正常的请求，你应该调整三个TCP参数可供你选择,第一个是:tcp_synack_retries可以用他来减少重试次数；第二个是:tcp_max_syn_backlog,可以增大SYN连接数;第三个是:tcp_abort_on_overflow处理不过来干脆就直接拒绝连接了。<h3 id="TCP链接的终止—四次挥手"><a href="#TCP链接的终止—四次挥手" class="headerlink" title="TCP链接的终止—四次挥手"></a>TCP链接的终止—四次挥手</h3>挥手过程就很好理解了，TCP是双全工的。发送方和接收方都需要Fin和Ack。只不过，有一方是被动的，所以看上去就成了所谓的4次挥手。如果两边同时断连接，那就会就进入到CLOSING状态，然后到达TIME_WAIT状态。<blockquote>
+<li>关于SYN Flood攻击。一些恶意的人就为此制造了SYN Flood攻击——给服务器发了一个SYN后，就下线了，于是服务器需要默认等63s才会断开连接，这样，攻击者就可以把服务器的syn连接的队列耗尽，让正常的连接请求不能处理。于是，Linux下给了一个叫tcp_syncookies参数来应对这个事——当SYN队列满了后,TCP会通过源地址端口、目标地址端口和时间戳打造出一个特别的Sequence Number发回去(又叫cookie),如果是攻击者则不会有响应，如果是正常连接，则会把这个 SYN Cookie发回来,然后服务端可以通过cookie建连接(即使你不在SYN队列中)。请注意,请先千万别用tcp_syncookies来处理正常的大负载的连接的情况。因为,synccookies是妥协版的TCP协议，并不严谨。对于正常的请求，你应该调整三个TCP参数可供你选择,第一个是:tcp_synack_retries可以用他来减少重试次数；第二个是:tcp_max_syn_backlog,可以增大SYN连接数;第三个是:tcp_abort_on_overflow处理不过来干脆就直接拒绝连接了。</li>
+</ol>
+<h3 id="TCP链接的终止—四次挥手"><a href="#TCP链接的终止—四次挥手" class="headerlink" title="TCP链接的终止—四次挥手"></a>TCP链接的终止—四次挥手</h3><p>挥手过程就很好理解了，TCP是双全工的。发送方和接收方都需要Fin和Ack。只不过，有一方是被动的，所以看上去就成了所谓的4次挥手。如果两边同时断连接，那就会就进入到CLOSING状态，然后到达TIME_WAIT状态。</p>
+<blockquote>
 <p>A：兄弟我的数据传送完了<br>B：收到了—-过了一会B的数据也传完了<br>B：兄弟我数据传完了<br>A：好的收到了   </p>
 </blockquote>
-</li>
-</ol>
 <p><img src="http://ofa8x9gy9.bkt.clouddn.com/TCP%E7%8A%B6%E6%80%81%E6%9C%BA.png" alt><br>在里面需要注意的是:关于<code>MSL</code>和<code>TIME_WAIT</code>。我们注意到，在TCP的状态图中，从<code>TIME_WAIT</code>状态到<code>CLOSED</code>状态,有一个超时设置,这个超时设置是 <code>2*MSL</code>（RFC793定义了MSL为2分钟，Linux设置成了30s）为什么要这有<code>TIME_WAIT</code>？为什么不直接给转成CLOSED状态呢？主要有两个原因：1）<code>TIME_WAIT</code>确保有足够的时间让对端收到了ACK，如果被动关闭的那方没有收到Ack，就会触发被动端重发Fin，一来一去正好2个MSL，2）有足够的时间让这个连接不会跟后面的连接混在一起（你要知道，有些自做主张的路由器会缓存IP数据包，如果连接被重用了，那么这些延迟收到的包就有可能会跟新连接混在一起）。</p>
 <h3 id="关于TCP的长链接与短连接"><a href="#关于TCP的长链接与短连接" class="headerlink" title="关于TCP的长链接与短连接"></a>关于TCP的长链接与短连接</h3><p>TCP的链接都是通过三次握手和四次挥手建立的，在一般情况下一般TCP是建立的短连接，一次数据传完就断开，这样也方便链接的管理。但是在某些需要频繁的交换数据的场景，这样就会浪费很多时间和资源在链接的建立和断开，所以这个时候就适合使用长连接进行通信。</p>
 <h4 id="短连接"><a href="#短连接" class="headerlink" title="短连接"></a>短连接</h4><p>一般短连接是client向server发起连接请求，和server通过三次握手，建立连接。client和server两边进行一次通信，然后一次读写就完成了。通常这时候双方都可以发送FIN进行关闭连接，但是一般情况下都是client先进行发送，一般server不会回复完ACK后立即关闭连接，server端会在数据发送完后发送FIN进行关闭，一般一个链接进行一次通信，这样链接的管理比较方便，不需要额外的控制手段。</p>
@@ -355,10 +359,10 @@
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-24T14:43:52+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-25T14:44:05+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 Apr 24, 2019</p>
+    <p>last updated at Apr 25, 2019</p>
   </a>
 </div>
 
@@ -434,29 +438,10 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
         
             <div class="prev-next">
                 
-                    <section class="prev">
-                        <span class="art-item-left">
-                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
-                            <h4>
-                                <a href="/2017/08/29/我理解的TCP协议(三)---滑动窗口以及拥塞控制/" rel="prev" title="我理解的TCP协议(三)---滑动窗口以及拥塞控制">
-                                  
-                                      我理解的TCP协议(三)---滑动窗口以及拥塞控制
-                                  
-                                </a>
-                            </h4>
-                            
-                                
-                                <h6 class="tags">
-                                    <a class="tag" href="/tags/TCP/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>TCP</a>
-                                </h6>
-                            
-                        </span>
-                    </section>
-                
                 
                     <section class="next">
                         <span class="art-item-right" aria-hidden="true">
-                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h6>Next&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
                             <h4>
                                 <a href="/2017/02/08/我理解的TCP协议(二)---重传/" rel="prev" title="我理解的TCP协议(二)---超时与重传">
                                     
@@ -484,19 +469,7 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
 
 
 
-  <article class="post white-box comments">
-    <section class="article typo">
-      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
-      
-      
-      
-        <section id="comments">
-          <div id="gitalk-container"></div>
-        </section>
-      
-      
-    </section>
-  </article>
+  
 
 
   
@@ -566,7 +539,7 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
   <section class="widget toc-wrapper">
     
 <header class="pure">
-  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;TOC</div>
   
     <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
   
@@ -650,7 +623,7 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
   <section class="widget category">
     
 <header class="pure">
-  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;Categories</div>
   
     <a class="rightBtn" rel="nofollow" href="/blog/categories/" title="blog/categories/">
     <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
@@ -664,7 +637,7 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
         
           <li><a class="flat-box" title="/categories/Java和golang/" href="/categories/Java和golang/"><div class="name">Java和golang</div><div class="badge">(2)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/TCP-IP/" href="/categories/TCP-IP/"><div class="name">TCP/IP</div><div class="badge">(5)</div></a></li>
+          <li><a class="flat-box" title="/categories/TCP-IP/" href="/categories/TCP-IP/"><div class="name">TCP/IP</div><div class="badge">(4)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Web/" href="/categories/Web/"><div class="name">Web</div><div class="badge">(1)</div></a></li>
         
@@ -687,7 +660,7 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
   <section class="widget tagcloud">
     
 <header class="pure">
-  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;Hot Tags</div>
   
     <a class="rightBtn" rel="nofollow" href="/blog/tags/" title="blog/tags/">
     <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
@@ -695,7 +668,7 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
 </header>
 
     <div class="content pure">
-      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 20.67px; color: #6c6c6c">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 17.33px; color: #828282">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
+      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 19px; color: #777">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 19px; color: #777">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
     </div>
   </section>
 
@@ -763,19 +736,19 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
     </div>
   
   <br>
-  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+  <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
 </div>
   <div>
-    本站使用
+    Use
     <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
-    作为主题
+    as theme
     
-      ，
-      总访问量为
+      , 
+      total visits
       <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
-      次
+      times
     
-    。
+    . 
   </div>
 </footer>
 <script>setLoadingBarProgress(80);</script>
@@ -841,23 +814,6 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
 
 
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
-  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
-  <script type="text/javascript">
-    var gitalk = new Gitalk({
-      clientID: "9c67a640993b2f5c0c57",
-      clientSecret: "89cbdf00e26a288e724661d2adf21e4df975a1e5",
-      repo: "fluge.github.io",
-      owner: "fluge",
-      admin: "lyfluge,fluge",
-      
-        id: location.pathname,      // Ensure uniqueness and length less than 50
-      
-      distractionFreeMode: false  // Facebook-like distraction free mode
-    });
-    gitalk.render('gitalk-container');
-  </script>
-
 
 
 
@@ -873,15 +829,15 @@ TCP 为什么是三次握手,为什么不是两次或四次？要解释这个问
 <!-- 复制 -->
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 <script>
-  let COPY_SUCCESS = "复制成功";
-  let COPY_FAILURE = "复制失败";
+  let COPY_SUCCESS = "Copied";
+  let COPY_FAILURE = "Copy failed";
   /*页面载入完成后，创建复制按钮*/
   !function (e, t, a) {
     /* code */
     var initCopyCode = function(){
       var copyHtml = '';
       copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '  <i class="fa fa-copy"></i><span>Copy</span>';
       copyHtml += '</button>';
       $(".highlight .code pre").before(copyHtml);
       var clipboard = new ClipboardJS('.btn-copy', {

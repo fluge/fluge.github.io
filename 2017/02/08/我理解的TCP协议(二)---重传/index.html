@@ -140,7 +140,7 @@
 			
 				<div class="m_search">
 					<form name="searchform" class="form u-search-form">
-						<input type="text" class="input u-search-input" placeholder="搜索">
+						<input type="text" class="input u-search-input" placeholder="Search">
 						<i class="icon fas fa-search fa-fw"></i>
 					</form>
 				</div>
@@ -324,14 +324,15 @@
 <h4 id="超时重传"><a href="#超时重传" class="headerlink" title="超时重传"></a>超时重传</h4><p>如果发送端决定死等3的ACK的话,等timeout后在重传3,然后接收端会回一个4(以为着3，4都收到了)。<br>但是有个问题很严重。在等3的超时的时候，由于4已经发送了,但是接收端不会发送4的ACK。说明在等3的时候，发送端会悲观的认为4也丢了。这个时候就会有两种选择：</p>
 <ol>
 <li>一种是仅重传第一个timeout的包。也就是第3份数据</li>
-<li>第二种就是重传timeout后面所有的包，<br>这两种方式有好也有不好。第一种会节省带宽，但是慢，第二种会快一点，但是会浪费带宽，也可能会有无用功。但总体来说都不好。因为都在等timeout，timeout可能会很长。<h4 id="快速重传"><a href="#快速重传" class="headerlink" title="快速重传"></a>快速重传</h4>TCP引入了一种叫Fast Retransmit的算法,<code>不以时间驱动,而以数据驱动重传</code>。也就是说，如果包没有连续到达,就ack最后那个可能被丢了的包，如果发送方连续收到3次相同的ack，就重传。Fast Retransmit的好处是不用等timeout了再重传。<br>比如：如果发送方发出了1，2，3，4，5份数据，第一份先到送了，于是就ack回2，结果2因为某些原因没收到，3到达了，于是还是ack回2，后面的4和5都到了，但是还是ack回2，因为2还是没有收到，于是发送端收到了三个ack=2的确认，知道了2还没有到，于是就马上重转2。然后，接收端收到了2，此时因为3，4，5都收到了，于是ack回6。示意图如下</li>
+<li>第二种就是重传timeout后面所有的包</li>
 </ol>
+<p>这两种方式有好也有不好。第一种会节省带宽，但是慢，第二种会快一点，但是会浪费带宽，也可能会有无用功。但总体来说都不好。因为都在等timeout，timeout可能会很长。</p>
+<h4 id="快速重传"><a href="#快速重传" class="headerlink" title="快速重传"></a>快速重传</h4><p>TCP引入了一种叫Fast Retransmit的算法,<code>不以时间驱动,而以数据驱动重传</code>。也就是说，如果包没有连续到达,就ack最后那个可能被丢了的包，如果发送方连续收到3次相同的ack，就重传。Fast Retransmit的好处是不用等timeout了再重传。<br>比如：如果发送方发出了1，2，3，4，5份数据，第一份先到送了，于是就ack回2，结果2因为某些原因没收到，3到达了，于是还是ack回2，后面的4和5都到了，但是还是ack回2，因为2还是没有收到，于是发送端收到了三个ack=2的确认，知道了2还没有到，于是就马上重转2。然后，接收端收到了2，此时因为3，4，5都收到了，于是ack回6。示意图如下</p>
 <p>Fast Retransmit只解决了一个问题，就是timeout的问题，它依然面临一个艰难的选择，就是，是重传之前的一个还是重传所有的问题。对于上面的示例来说，是重传#2呢还是重传#2，#3，#4，#5呢？因为发送端并不清楚这连续的3个ack(2)是谁传回来的？也许发送端发了20份数据，是#6，#10，#20传来的呢。这样，发送端很有可能要重传从2到20的这堆数据（这就是某些TCP的实际的实现）。可见，这是一把双刃剑。</p>
 <h4 id="SACK-方法"><a href="#SACK-方法" class="headerlink" title="SACK 方法"></a>SACK 方法</h4><p>另外一种更好的方式叫：Selective Acknowledgment (SACK)（参看RFC 2018），这种方式需要在TCP头里加一个SACK的东西，ACK还是Fast Retransmit的ACK，SACK则是汇报收到的数据碎版。参看下图：<br><img src="http://ofa8x9gy9.bkt.clouddn.com/%E8%B6%85%E6%97%B6%E9%87%8D%E4%BC%A0--SACK.png" alt><br>这样，在发送端就可以根据回传的SACK来知道哪些数据到了，哪些没有到。于是就优化了Fast Retransmit的算法。当然，这个协议需要两边都支持。在 Linux下，可以通过tcp_sack参数打开这个功能（Linux 2.4后默认打开）。</p>
 <p>这里还需要注意一个问题——接收方Reneging，所谓Reneging的意思就是接收方有权把已经报给发送端SACK里的数据给丢了。这样干是不被鼓励的，因为这个事会把问题复杂化了，但是，接收方这么做可能会有些极端情况，比如要把内存给别的更重要的东西。所以，发送方也不能完全依赖SACK，还是要依赖ACK，并维护Time-Out，如果后续的ACK没有增长，那么还是要把SACK的东西重传，另外，接收端这边永远不能把SACK的包标记为Ack。</p>
 <p>注意：SACK会消费发送方的资源，试想，如果一个攻击者给数据发送方发一堆SACK的选项，这会导致发送方开始要重传甚至遍历已经发出的数据，这会消耗很多发送端的资源。</p>
-<hr>
-<p>参考:<br><a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="noopener">TCP 的那些事儿（上）</a><br><a href="http://coolshell.cn/articles/11609.html" target="_blank" rel="noopener">TCP 的那些事儿（下）</a></p>
+<h4 id="D-SACK-方法"><a href="#D-SACK-方法" class="headerlink" title="D-SACK 方法"></a>D-SACK 方法</h4><h2 id="asdf"><a href="#asdf" class="headerlink" title="asdf"></a>asdf</h2><p>参考:<br><a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="noopener">TCP 的那些事儿（上）</a><br><a href="http://coolshell.cn/articles/11609.html" target="_blank" rel="noopener">TCP 的那些事儿（下）</a></p>
 
         </div>
         
@@ -343,10 +344,10 @@
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-24T14:43:52+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-25T11:30:42+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 Apr 24, 2019</p>
+    <p>last updated at Apr 25, 2019</p>
   </a>
 </div>
 
@@ -418,7 +419,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
                 
                     <section class="prev">
                         <span class="art-item-left">
-                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;Previous</h6>
                             <h4>
                                 <a href="/2017/03/06/我理解的TCP协议(一)---链接的建立和终止/" rel="prev" title="我理解的TCP协议(一)---链接的建立和终止">
                                   
@@ -438,11 +439,11 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
                 
                     <section class="next">
                         <span class="art-item-right" aria-hidden="true">
-                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h6>Next&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
                             <h4>
-                                <a href="/2017/01/18/并发系列(一) Java7的ConcurrentHashMap/" rel="prev" title="并发系列(一) Java7的ConcurrentHashMap">
+                                <a href="/2017/01/18/Java7的ConcurrentHashMap/" rel="prev" title="Java7的ConcurrentHashMap">
                                     
-                                        并发系列(一) Java7的ConcurrentHashMap
+                                        Java7的ConcurrentHashMap
                                     
                                 </a>
                             </h4>
@@ -466,19 +467,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
 
 
 
-  <article class="post white-box comments">
-    <section class="article typo">
-      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
-      
-      
-      
-        <section id="comments">
-          <div id="gitalk-container"></div>
-        </section>
-      
-      
-    </section>
-  </article>
+  
 
 
   
@@ -548,15 +537,15 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
   <section class="widget toc-wrapper">
     
 <header class="pure">
-  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;TOC</div>
   
     <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
   
 </header>
 
     <div class="content pure">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#重传"><span class="toc-text">重传</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#超时重传"><span class="toc-text">超时重传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#快速重传"><span class="toc-text">快速重传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SACK-方法"><span class="toc-text">SACK 方法</span></a></li></ol></li></ol>
-    </div>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#重传"><span class="toc-text">重传</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#超时重传"><span class="toc-text">超时重传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#快速重传"><span class="toc-text">快速重传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SACK-方法"><span class="toc-text">SACK 方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-SACK-方法"><span class="toc-text">D-SACK 方法</span></a></li></ol></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#asdf"><span class="toc-text">asdf</span></a>
+    </li></div>
   </section>
 
 
@@ -632,7 +621,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
   <section class="widget category">
     
 <header class="pure">
-  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;Categories</div>
   
     <a class="rightBtn" rel="nofollow" href="/blog/categories/" title="blog/categories/">
     <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
@@ -646,7 +635,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
         
           <li><a class="flat-box" title="/categories/Java和golang/" href="/categories/Java和golang/"><div class="name">Java和golang</div><div class="badge">(2)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/TCP-IP/" href="/categories/TCP-IP/"><div class="name">TCP/IP</div><div class="badge">(5)</div></a></li>
+          <li><a class="flat-box" title="/categories/TCP-IP/" href="/categories/TCP-IP/"><div class="name">TCP/IP</div><div class="badge">(4)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Web/" href="/categories/Web/"><div class="name">Web</div><div class="badge">(1)</div></a></li>
         
@@ -669,7 +658,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
   <section class="widget tagcloud">
     
 <header class="pure">
-  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;Hot Tags</div>
   
     <a class="rightBtn" rel="nofollow" href="/blog/tags/" title="blog/tags/">
     <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
@@ -677,7 +666,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
 </header>
 
     <div class="content pure">
-      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 20.67px; color: #6c6c6c">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 17.33px; color: #828282">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
+      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 19px; color: #777">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 19px; color: #777">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
     </div>
   </section>
 
@@ -745,19 +734,19 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
     </div>
   
   <br>
-  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+  <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
 </div>
   <div>
-    本站使用
+    Use
     <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
-    作为主题
+    as theme
     
-      ，
-      总访问量为
+      , 
+      total visits
       <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
-      次
+      times
     
-    。
+    . 
   </div>
 </footer>
 <script>setLoadingBarProgress(80);</script>
@@ -823,23 +812,6 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
 
 
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
-  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
-  <script type="text/javascript">
-    var gitalk = new Gitalk({
-      clientID: "9c67a640993b2f5c0c57",
-      clientSecret: "89cbdf00e26a288e724661d2adf21e4df975a1e5",
-      repo: "fluge.github.io",
-      owner: "fluge",
-      admin: "lyfluge,fluge",
-      
-        id: location.pathname,      // Ensure uniqueness and length less than 50
-      
-      distractionFreeMode: false  // Facebook-like distraction free mode
-    });
-    gitalk.render('gitalk-container');
-  </script>
-
 
 
 
@@ -855,15 +827,15 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
 <!-- 复制 -->
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 <script>
-  let COPY_SUCCESS = "复制成功";
-  let COPY_FAILURE = "复制失败";
+  let COPY_SUCCESS = "Copied";
+  let COPY_FAILURE = "Copy failed";
   /*页面载入完成后，创建复制按钮*/
   !function (e, t, a) {
     /* code */
     var initCopyCode = function(){
       var copyHtml = '';
       copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '  <i class="fa fa-copy"></i><span>Copy</span>';
       copyHtml += '</button>';
       $(".highlight .code pre").before(copyHtml);
       var clipboard = new ClipboardJS('.btn-copy', {
