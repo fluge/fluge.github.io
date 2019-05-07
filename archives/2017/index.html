@@ -231,9 +231,121 @@
         
           
         
+          
+        
       
     
     
+      
+        
+          <div class="post-wrapper">
+            <article class="post reveal ">
+  
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  <h2 class="title">
+    <a href="/2017/08/29/二叉树的几种遍历方式/">
+      二叉树的几种遍历方式
+    </a>
+  </h2>
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <i class="fas fa-user" aria-hidden="true"></i>
+      
+      <p>fluge</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2017-08-29</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/算法/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>算法</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      <p>二叉树的各种遍历方式,包括递归和非递归的整理</p>
+<ol>
+<li>前、中、后三种方式的递归和非递归</li>
+<li>广度优先和层次遍历（树的深度的非递归解法）</li>
+<li>深度优先<h3 id="前序遍历"><a href="#前序遍历" class="headerlink" title="前序遍历"></a>前序遍历</h3>前序遍历就是：先根节点 —&gt; 左节点 —&gt; 右节点<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">//递归解法</span><br><span class="line">func PreOrderTraversal(root *TreeNode) []int &#123;</span><br><span class="line">	if root == nil &#123;</span><br><span class="line">		return nil</span><br><span class="line">	&#125;</span><br><span class="line">	res := make([]int, 0)</span><br><span class="line">	res = append(res, root.Val)</span><br><span class="line">	if root.Left != nil &#123;</span><br><span class="line">		res = append(res, PreOrderTraversal(root.Left)...)</span><br><span class="line">	&#125;</span><br><span class="line">	if root.Right != nil &#123;</span><br><span class="line">		res = append(res, PreOrderTraversal(root.Right)...)</span><br><span class="line">	&#125;</span><br><span class="line">	return res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//非递归解法</span><br><span class="line">func PreOrderTraversal2(root *TreeNode) []int &#123;</span><br><span class="line">	if root == nil &#123;</span><br><span class="line">		return nil</span><br><span class="line">	&#125;</span><br><span class="line">	stack := make([]*TreeNode, 0)</span><br><span class="line">	res := make([]int, 0)</span><br><span class="line">	//把根节点入栈</span><br><span class="line">	for root != nil || len(stack) &gt; 0 &#123;</span><br><span class="line">        //不停的找做节点</span><br><span class="line">		for root != nil &#123;</span><br><span class="line">            //根节点先输出</span><br><span class="line">			res = append(res, root.Val)</span><br><span class="line">			stack = append(stack, root)</span><br><span class="line">			root = root.Left</span><br><span class="line">		&#125;</span><br><span class="line">        //出栈操作</span><br><span class="line">		root = stack[len(stack)-1]</span><br><span class="line">		stack = stack[:len(stack)-1]</span><br><span class="line">        //遍历右节点</span><br><span class="line">		root = root.Right</span><br><span class="line">	&#125;</span><br><span class="line">	return res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+      
+        <div class="readmore">
+          <a href="/2017/08/29/二叉树的几种遍历方式/" class="flat-box">
+            <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
+            阅读全文
+          </a>
+        </div>
+      
+    </div>
+    
+      <div class="full-width auto-padding tags">
+        
+          <a href="/tags/二叉树/" rel="nofollow"><i class="fas fa-hashtag fa-fw"></i>二叉树</a>
+        
+      </div>
+    
+  </section>
+</article>
+
+          </div>
+        
       
         
           <div class="post-wrapper">
@@ -713,6 +825,8 @@
         
           <li><a class="flat-box" title="/categories/web/" href="/categories/web/"><div class="name">web</div><div class="badge">(1)</div></a></li>
         
+          <li><a class="flat-box" title="/categories/算法/" href="/categories/算法/"><div class="name">算法</div><div class="badge">(1)</div></a></li>
+        
       </ul>
     </div>
   </section>
@@ -736,7 +850,7 @@
 </header>
 
     <div class="content pure">
-      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 19px; color: #777">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 19px; color: #777">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
+      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 19px; color: #777">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 19px; color: #777">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a> <a href="/tags/二叉树/" style="font-size: 14px; color: #999">二叉树</a>
     </div>
   </section>
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>Category: Web | fluge site</title>
+  <title>Category: web | fluge site</title>
   
   
   <meta name="description" content="积累漫长而艰辛，coding....。">
@@ -246,8 +246,8 @@
       
         
   <h2 class="title">
-    <a href="/2016/12/14/跨域/">
-      跨域
+    <a href="/2016/12/22/session和cookie/">
+      session和cookie
     </a>
   </h2>
 
@@ -275,7 +275,7 @@
             <div class="new-meta-item date">
   <a class="notlink">
     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2016-12-14</p>
+    <p>2016-12-22</p>
   </a>
 </div>
 
@@ -285,9 +285,9 @@
             
   
   <div class="new-meta-item category">
-    <a href="/categories/Web/" rel="nofollow">
+    <a href="/categories/web/" rel="nofollow">
       <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>Web</p>
+      <p>web</p>
     </a>
   </div>
 
@@ -314,21 +314,26 @@
 
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
-      <h3 id="同源策略"><a href="#同源策略" class="headerlink" title="同源策略"></a>同源策略</h3><p>这套安全策略由Netscape提出，并延续至今。它规定：JavaScript脚本只能访问与其同一来源的资源(现在很多资源是通过ajax发起异步请求来获取的，如果没有跨域这个是禁止的)。<br>所谓同源是指，域名，协议，端口相同。不同源的客户端脚本(javascript、ActionScript)在没明确授权的情况下，不能读写对方的资源。严格隔离不相关的网站提供的内容，防止客户端数据机密性或完整性丢失。<br>假设你已经成功登录Gmail服务器，同时在同一个浏览器访问恶意站点（另一个浏览器选项卡）。没有同源策略，攻击者可以通过JavaScript获取你的用户信息，你的邮件以及其他敏感信息，比如说阅读你的私密邮件，发送虚假邮件，看你的聊天记录等等。假如把这个换成银行账户，那就很恐怖了。<br>可以说同源策略是现如今浏览器安全的基石。但是如果不能突破同源策略，把所有的资源放在同一服务器下，现在看来是不现实，必须有一中方式去平衡这种安全和便捷的机制–跨域。现在一般的跨域使用的是CORS(基本所有浏览器支持)和JSONP(一些比较的老的应用使用)。  </p>
-<h3 id="CROS跨域"><a href="#CROS跨域" class="headerlink" title="CROS跨域"></a>CROS跨域</h3><p>CORS是一个W3C标准，全称是”跨域资源共享”(Cross-origin resource sharing)。它允许浏览器向跨源服务器,发出XMLHttpRequest请求，从而克服了AJAX只能同源使用的限制。<br>简单说一下我对CROS的理解。就相当于我想跟一个邻居借东西(浏览器向服务器发送跨域请求)。我首先要去敲门，然后就是几种情况，一种是邻居家里你敲门没有反应(服务器端没有设置跨域)，你跟不知道邻居家里的具体情况，借东西肯定是失败的。一种是邻居进行了应答，但是告诉你我跟你不熟，不借东西给你。另外一种就是邻居进行了应答，并借给你东西。<br>
+      <h3 id="基本认识"><a href="#基本认识" class="headerlink" title="基本认识"></a>基本认识</h3><p>首先有一点必须特别的清楚： 因为HTTP协议是无状态的，客户每次读取web页面时，服务器都打开新的会话，而且服务器也不会自动维护客户的上下文信息，对于一个浏览器发出的多次请求，WEB服务器无法区分 是不是来源于同一个浏览器，更别说是否是来自同一用户。为了保持用户的状态，有了两种机制，一般用户客户端的cookie机制，和用于服务器端的session机制，这两种机制都是为了保持状态，既有联系又有区别。</p>
+<h3 id="cookie基本实现机制"><a href="#cookie基本实现机制" class="headerlink" title="cookie基本实现机制"></a>cookie基本实现机制</h3><p>现在的cookie是HTTP协议的一部分，一般存在HTTP的响应头，内容是一系列的键值对的形式，简单说：cookie就是服务器在用户的浏览器中存储的一小段文本文件（大小不能超过3K）不包含任何可执行代码，里面一般包含的是用户的登录信息之类的比较少的，用来验证用户是否合法（不止局限与此，cookie是用来记录状态的，也可以是购物的等一系列状态，让服务器知道我们浏览了那些地方，购物对那些感兴趣，一般很多广告都是根据这个东西来推送的，你在某购物网站买了一个东西，然后浏览别的网站，发现广告都是和你浏览的相关）。  cookie的内容主要包括：key-value,Expires（过期时间），path和domain。path和domain一起构成cookie的作用范围。<br><img src="http://ofa8x9gy9.bkt.clouddn.com/cookie.png" alt><br>&emsp;&emsp;&emsp;&emsp;现在的cookie，内容经过加密了<br>cookie的实现流程：  </p>
+<ol>
+<li>浏览器向某个URL发起HTTP请求 （可以是任何请求，比如GET，POST等）</li>
+<li>对应的服务器收到该HTTP请求，并做相应的响应（响应头和请求体两部分），在响应的头中加入<code>Set-Cookie</code>字段（设置相应的cookie，cookie是多个<code>key-value</code>组成的）
       
         <div class="readmore">
-          <a href="/2016/12/14/跨域/" class="flat-box">
+          <a href="/2016/12/22/session和cookie/" class="flat-box">
             <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
             阅读全文
           </a>
         </div>
       
-    </p></div>
+    </li></ol></div>
     
       <div class="full-width auto-padding tags">
         
-          <a href="/tags/cros/" rel="nofollow"><i class="fas fa-hashtag fa-fw"></i>cros</a>
+          <a href="/tags/session/" rel="nofollow"><i class="fas fa-hashtag fa-fw"></i>session</a>
+        
+          <a href="/tags/cookie/" rel="nofollow"><i class="fas fa-hashtag fa-fw"></i>cookie</a>
         
       </div>
     
@@ -494,6 +499,8 @@
         
           <li><a class="flat-box" title="/categories/web/" href="/categories/web/"><div class="name">web</div><div class="badge">(1)</div></a></li>
         
+          <li><a class="flat-box" title="/categories/算法/" href="/categories/算法/"><div class="name">算法</div><div class="badge">(1)</div></a></li>
+        
       </ul>
     </div>
   </section>
@@ -517,7 +524,7 @@
 </header>
 
     <div class="content pure">
-      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 19px; color: #777">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 19px; color: #777">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a>
+      <a href="/tags/ICMP/" style="font-size: 14px; color: #999">ICMP</a> <a href="/tags/Java/" style="font-size: 24px; color: #555">Java</a> <a href="/tags/TCP/" style="font-size: 19px; color: #777">TCP</a> <a href="/tags/UDP/" style="font-size: 14px; color: #999">UDP</a> <a href="/tags/cookie/" style="font-size: 14px; color: #999">cookie</a> <a href="/tags/cros/" style="font-size: 14px; color: #999">cros</a> <a href="/tags/golang/" style="font-size: 19px; color: #777">golang</a> <a href="/tags/ip/" style="font-size: 14px; color: #999">ip</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/start/" style="font-size: 14px; color: #999">start</a> <a href="/tags/二叉树/" style="font-size: 14px; color: #999">二叉树</a>
     </div>
   </section>
 
@@ -786,6 +793,4 @@
 
   <script>setLoadingBarProgress(100);</script>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
-</html>
-:{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
 </html>
