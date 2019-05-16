@@ -1,0 +1,6 @@
+{
+	"dest_dir"	:	"/Users/luan/Desktop",
+	"bucket"	:	"myblog-test",
+	"cdn_domain"    :      "prl8ikv7f.bkt.clouddn.com",
+	"suffixes"	:	".jpg"
+}
