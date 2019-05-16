@@ -314,7 +314,7 @@
 
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
-      <h3 id="ICMP网络控制报文协议"><a href="#ICMP网络控制报文协议" class="headerlink" title="ICMP网络控制报文协议"></a>ICMP网络控制报文协议</h3><p>ICMP经常被认为是IP层的一个组成部分,它传递差错报文以及其他需要注意的信息。ICMP报文通常被IP层或更高层协议（UDP,TCP）使用。ICMP报文是在IP数据报内部传输的。由于IP是不可靠的协议，不能保证IP数据报能够成功到达目的主机，无法进行差错控制。但是这些信息会由ICMP将错误信息封包，然后传递给主机，让主机有处理错误的机会。<br><img src="http://ofa8x9gy9.bkt.clouddn.com/ICMP%E5%8D%8F%E8%AE%AE%E6%A0%BC%E5%BC%8F.png" alt><br>ICMP数据报由8bit的错误类型和8bit的代码（表示制定类型中的一个功能，如果只有一个功能，代码就置0）以及16bit的校验和组成，检验和字段覆盖整个ICMP报文。<br>ICMP报文大致可以分为：差错报文和查询报文。因为对ICMP的差错报文需要做一些特殊响应，需要进行区分。比如在对差错报文进行响应的时候，永远不会产生另一个ICMP差错报文，防止不断的产生差错一直循环。同时一下几种情况也不会产生ICMP差错报文：</p>
+      <h3 id="ICMP网络控制报文协议"><a href="#ICMP网络控制报文协议" class="headerlink" title="ICMP网络控制报文协议"></a>ICMP网络控制报文协议</h3><p>ICMP经常被认为是IP层的一个组成部分,它传递差错报文以及其他需要注意的信息。ICMP报文通常被IP层或更高层协议（UDP,TCP）使用。ICMP报文是在IP数据报内部传输的。由于IP是不可靠的协议，不能保证IP数据报能够成功到达目的主机，无法进行差错控制。但是这些信息会由ICMP将错误信息封包，然后传递给主机，让主机有处理错误的机会。<br><img src="http://fluge.github.io/images/ICMP%E5%8D%8F%E8%AE%AE%E6%A0%BC%E5%BC%8F.png" alt><br>ICMP数据报由8bit的错误类型和8bit的代码（表示制定类型中的一个功能，如果只有一个功能，代码就置0）以及16bit的校验和组成，检验和字段覆盖整个ICMP报文。<br>ICMP报文大致可以分为：差错报文和查询报文。因为对ICMP的差错报文需要做一些特殊响应，需要进行区分。比如在对差错报文进行响应的时候，永远不会产生另一个ICMP差错报文，防止不断的产生差错一直循环。同时一下几种情况也不会产生ICMP差错报文：</p>
 <ol>
 <li>ICMP差错报文不会产生</li>
 <li>目的地址是广播地址或多播地址的IP数据报</li>
