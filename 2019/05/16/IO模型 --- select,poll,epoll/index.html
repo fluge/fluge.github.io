@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>我理解的TCP协议(二)---超时与重传 | fluge site</title>
+  <title>IO模型 --- select,poll,epoll | fluge site</title>
   
   
   <meta name="description" content="积累漫长而艰辛，coding....。">
@@ -234,8 +234,8 @@
         
   
     <h1 class="title">
-      <a href="/2017/02/08/我理解的TCP协议(二)---超市与重传/">
-        我理解的TCP协议(二)---超时与重传
+      <a href="/2019/05/16/IO模型 --- select,poll,epoll/">
+        IO模型 --- select,poll,epoll
       </a>
     </h1>
   
@@ -264,7 +264,7 @@
             <div class="new-meta-item date">
   <a class="notlink">
     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2017-02-08</p>
+    <p>2019-05-16</p>
   </a>
 </div>
 
@@ -274,9 +274,9 @@
             
   
   <div class="new-meta-item category">
-    <a href="/categories/TCP-IP/" rel="nofollow">
+    <a href="/categories/Linux/" rel="nofollow">
       <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>TCP/IP</p>
+      <p>Linux</p>
     </a>
   </div>
 
@@ -316,38 +316,46 @@
 
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
-          <p><a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="noopener">原文</a><br>TCP的可靠性不止建立在建立一个稳固的链接上，还有就是数据包丢失的重传机制,和防止网络波动的拥塞处理机制,这些都是慢慢发展而来的。<br>要先了解TCP的重传和拥塞处理,需要先了解两个很常见的变量–RTT和RTO,这两个是对重传和拥塞很重要的概念。</p>
+          <p>最近在看网络编程模型，虽然Golang天然高并发的原因很大一部分是因为<code>协程</code>和<code>channel</code>,但是这个里面还是离不开底层的网络编程模型的选用 — <code>epoll</code>。在学习这部分的时候对<code>IO多路复用</code>做了一些了解。</p>
+<h3 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h3><h4 id="内核空间和用户空间"><a href="#内核空间和用户空间" class="headerlink" title="内核空间和用户空间"></a>内核空间和用户空间</h4><p>现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，它的寻址空间（虚拟存储空间）为4G（2的32次方）。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。</p>
+<p>为了保证用户进程不能直接操作内核，保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为<code>内核空间</code>，一部分为<code>用户空间</code>。我们可以简单理解为，一张纸，四分之一给一个叫内核的人用，四分之三给一个叫用户的人用。</p>
+<h4 id="fd-文件操作描述符"><a href="#fd-文件操作描述符" class="headerlink" title="fd 文件操作描述符"></a>fd 文件操作描述符</h4><p><code>文件描述符</code>在形式上是一个非负整数,它是一个索引值,指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。文件描述符这一概念往往只适用于Unix和Linux这样的操作系统。</p>
+<h4 id="缓存IO"><a href="#缓存IO" class="headerlink" title="缓存IO"></a>缓存IO</h4><p>缓存 I/O 又被称作<code>标准 I/O</code>，大多数文件系统的默认 I/O 操作都是缓存 I/O。在 Linux 的缓存 I/O 机制中，操作系统会将 I/O 的数据缓存在文件系统的页缓存（ page cache ）中，也就是说，数据会先被<code>拷贝到操作系统内核的缓冲区中</code>，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。就是从<code>内核空间</code>到<code>用户空间</code>需要经过两次复制操作。这些数据拷贝操作所带来的 CPU 以及内存开销是非常大的。</p>
+<a id="more"></a>
+<h4 id="Linux的socket-事件wakeup-callback机制"><a href="#Linux的socket-事件wakeup-callback机制" class="headerlink" title="Linux的socket 事件wakeup callback机制"></a>Linux的socket 事件wakeup callback机制</h4><p>Linux（2.6+）内核 会通过<code>sleep_list</code>等待队列，去管理所有正在等<code>socket事件</code>的process，会在<code>sleep_list</code> 中为当前正在等待的process构建一个<code>wait_entry</code>,只到超时或者事件触发，在每个<code>wait_enrey</code>上会定义一个<code>callback</code><br>同时<code>wakeup</code>机制会异步的唤醒整个<code>sleep_list</code>上的process，并同时执行<code>callback</code> ，删除<code>sleep_list</code> 上的<code>wait_entry</code> 节点。总体上会涉及两大逻辑：</p>
+<p>睡眠机制 </p>
 <blockquote>
-<p>RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于路由器和网络流量均会变化，因此我们认为这个时间可能经常会发生变化，TCP应该跟踪这些变化并相应地改变其超时时间。<br>RTO(Retransmission TimeOut):重传超时时间,是根据RTT计算得到的。   </p>
+<ol>
+<li><code>select</code>、<code>poll</code>、<code>epoll_wait</code>陷入内核，判断监控的socket是否有关心的事件发生了，如果没，则为当前process构建一个<code>wait_entry</code>节点，然后插入到监控socket的<code>sleep_list</code>里取。</li>
+<li>Linux调用schedule函数进行process的状态转换，shcedule函数是Linux的调度process的函数，这里指的是process进入sleep直到超时或者事件发生。</li>
+<li>事件触发后，将当前process的<code>wait_entry</code>节点从socket的<code>sleep_list</code>中删除。</li>
+</ol>
 </blockquote>
-<h3 id="重传"><a href="#重传" class="headerlink" title="重传"></a>重传</h3><p>在重传机制中，首先在介绍重传的几个机制前，要注意。接收端给发送端的Ack确认只会确认最后一个连续的包。比如：发送端发了1,2,3,4,5一共五份数据，接收端收到了1,2,于是回ack 3,然后收到了4(注意此时3没收到，3丢失)此时的TCP会怎么办?我们要知道,因为正如前面所说的,<code>SeqNum和Ack是以字节数为单位,所以ack的时候,不能跳着确认,只能确认最大的连续收到的包</code>,不然,发送端就以为之前的都收到了。<br><a id="more"></a></p>
-<h4 id="超时重传"><a href="#超时重传" class="headerlink" title="超时重传"></a>超时重传</h4><p>如果发送端决定死等3的ACK的话,等timeout后在重传3,然后接收端会回一个4(以为着3，4都收到了)。<br>但是有个问题很严重。在等3的超时的时候，由于4已经发送了,但是接收端不会发送4的ACK。说明在等3的时候，发送端会悲观的认为4也丢了。这个时候就会有两种选择：</p>
+<p>唤醒机制</p>
+<blockquote>
 <ol>
-<li>一种是仅重传第一个timeout的包。也就是第3份数据</li>
-<li>第二种就是重传timeout后面所有的包</li>
+<li><code>socket的事件</code>发生了，然后<code>socket</code>顺序遍历其睡眠队列<code>sleep_list</code>，依次调用每个<code>wait_entry</code>节点（对应各个Process）的<code>callback</code>函数。</li>
+<li>直到完成队列的遍历或遇到某个<code>wait_entry</code>节点是排他的才停止。</li>
+<li>一般情况下<code>callback</code>包含两个逻辑：<code>wait_entry</code>自定义的私有逻辑和唤醒的公共逻辑，主要用于将该<code>wait_entry</code>的process放入CPU的就绪队列，让CPU随后可以调度其执行。</li>
 </ol>
-<p>这两种方式有好也有不好。第一种会节省带宽，但是慢，第二种会快一点，但是会浪费带宽，也可能会有无用功。但总体来说都不好。因为都在等timeout，timeout可能会很长。</p>
-<h4 id="快速重传"><a href="#快速重传" class="headerlink" title="快速重传"></a>快速重传</h4><p>TCP引入了一种叫Fast Retransmit的算法,<code>不以时间驱动,而以数据驱动重传</code>。也就是说，如果包没有连续到达,就ack最后那个可能被丢了的包，如果发送方连续收到3次相同的ack，就重传。Fast Retransmit的好处是不用等timeout了再重传。<br>比如：如果发送方发出了1，2，3，4，5份数据，第一份先到送了，于是就ack回2，结果2因为某些原因没收到，3到达了，于是还是ack回2，后面的4和5都到了，但是还是ack回2，因为2还是没有收到，于是发送端收到了三个ack=2的确认，知道了2还没有到，于是就马上重转2。然后，接收端收到了2，此时因为3，4，5都收到了，于是ack回6。示意图如下</p>
-<p>Fast Retransmit只解决了一个问题，就是timeout的问题，它依然面临一个艰难的选择，就是，是重传之前的一个还是重传所有的问题。对于上面的示例来说，是重传#2呢还是重传#2，#3，#4，#5呢？因为发送端并不清楚这连续的3个ack(2)是谁传回来的？也许发送端发了20份数据，是#6，#10，#20传来的呢。这样，发送端很有可能要重传从2到20的这堆数据（这就是某些TCP的实际的实现）。可见，这是一把双刃剑。</p>
-<h4 id="Selective-Acknowledgment（SACK）-方法"><a href="#Selective-Acknowledgment（SACK）-方法" class="headerlink" title="Selective Acknowledgment（SACK） 方法"></a>Selective Acknowledgment（SACK） 方法</h4><p>不管是超时重传还是快熟重传都会面临一个重传一个还是重传所有的问题，这个时候可以使用SACK的方法来告知真正被丢失的包。要使用SACK的方式需要TCP的两端同时支持才行，可以通过tcp_sack参数打开这个功能(2.4后默认打开)<br>SACK方法需要在TCP头里加一个SACK option的东西，ACK还是Fast Retransmit的ACK，SACK则是汇报收到的<code>一系列的非连续的没有确认的seq range</code>。参看下图：<br><img src="http://fluge.github.io/images/%E8%B6%85%E6%97%B6%E9%87%8D%E4%BC%A0--SACK.png" alt><br>这样，在发送端就可以根据回传的SACK来知道哪些数据到了，哪些没有到，对没有收到的数据进行重传。</p>
-<p>在接受端向发送端发送ack 时会带上sack option<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">TCP SACK Option</span><br><span class="line">Kind: 5</span><br><span class="line">Length: Variable</span><br><span class="line">                          +-------------+-------------+</span><br><span class="line">                          | Kind = 5    |   Length    |</span><br><span class="line">+------------+------------+-------------+-------------+</span><br><span class="line">|            Left Edge of list Block                  |</span><br><span class="line">+------------+------------+-------------+-------------+</span><br><span class="line">|            Right Edge of list Block                 |</span><br><span class="line">+------------+------------+-------------+-------------+</span><br><span class="line">|                                                     |</span><br><span class="line">/                      .  .  .                        /</span><br><span class="line">|                                                     |</span><br><span class="line">+------------+------------+-------------+-------------+</span><br><span class="line">|            Left Edge of list Block                  |</span><br><span class="line">+------------+------------+-------------+-------------+</span><br><span class="line">|            Right Edge of list Block                 |</span><br><span class="line">+------------+------------+-------------+-------------+</span><br></pre></td></tr></table></figure></p>
-<p>sack option 一般占40字节。其中kind 占4字节，length占4个字节，剩下的32字节，每8个字节就为一个sack段，来记录一个连续block的开始序号和结束序号，最多记录4组block。</p>
-<p>注意：SACK会消费发送方的资源，试想，如果一个攻击者给数据发送方发一堆SACK的选项，这会导致发送方开始要重传甚至遍历已经发出的数据，这会消耗很多发送端的资源。可以参考<a href="https://www.ibm.com/developerworks/cn/linux/l-tcp-sack/" target="_blank" rel="noopener">TCP 选择性应答的性能权衡</a></p>
-<h4 id="D-SACK-方法"><a href="#D-SACK-方法" class="headerlink" title="D-SACK 方法"></a>D-SACK 方法</h4><p>Duplicate SACK又称D-SACK，其主要使用了SACK来告诉发送方有哪些数据被重复接收了。可以用tcp_dsack 参数进行开启（Linux2.4下默认开启）<br>D-SACK 使用了 SACK 的第一个block来做标志：</p>
+</blockquote>
+<h4 id="IO模型"><a href="#IO模型" class="headerlink" title="IO模型"></a>IO模型</h4><p>对于一次IO访问（以read举例），数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。所以说，当一个read操作发生时，它会经历两个阶段：</p>
 <ol>
-<li>如果SACK的第一个block的范围被ACK所覆盖，那么就是D-SACK</li>
-<li>如果SACK的第一个block的范围被SACK的第二个段覆盖，那么就是D-SACK</li>
+<li>等待数据准备 (Waiting for the data to be ready)</li>
+<li>将数据从内核拷贝到进程中 (Copying the data from the kernel to the process)</li>
 </ol>
-<p>引入了D-SACK，有这么几个好处：</p>
+<p>正式因为这两个阶段，linux系统产生了下面五种网络模式的方案：</p>
 <ol>
-<li>可以让发送方知道，是发出去的包丢了，还是回来的ACK包丢了。</li>
-<li>是不是自己的timeout太小了，导致重传。</li>
-<li>网络上出现了先发的包后到的情况（又称reordering）。</li>
-<li>网络上是不是把我的数据包给复制了。</li>
+<li>阻塞 I/O（blocking IO）</li>
+<li>非阻塞 I/O（nonblocking IO）</li>
+<li>I/O 多路复用（ IO multiplexing）</li>
+<li>信号驱动 I/O（ signal driven IO）(比较少用到)</li>
+<li>异步 I/O（asynchronous IO）</li>
 </ol>
-<p>知道这些东西可以很好得帮助TCP了解网络情况，从而可以更好的做网络上的流控。</p>
-<hr>
-<p>参考:<br><a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="noopener">TCP 的那些事儿（上）</a><br><a href="http://coolshell.cn/articles/11609.html" target="_blank" rel="noopener">TCP 的那些事儿（下）</a></p>
+<h5 id="阻塞-I-O（blocking-IO）"><a href="#阻塞-I-O（blocking-IO）" class="headerlink" title="阻塞 I/O（blocking IO）"></a>阻塞 I/O（blocking IO）</h5><p><img src="http://fluge.github.io/images/blocking.jpg" alt><br>用户进程process在Blocking IO读<code>recvfrom</code>操作的两个阶段都是等待的。在数据没准备好的时候，process原地等待kernel准备数据。kernel准备好数据后，process继续等待kernel将数据copy到自己的buffer。在kernel完成数据的copy后process才会从recvfrom系统调用中返回。</p>
+<h5 id="非阻塞-I-O（NonBlocking-IO）"><a href="#非阻塞-I-O（NonBlocking-IO）" class="headerlink" title="非阻塞 I/O（NonBlocking IO）"></a>非阻塞 I/O（NonBlocking IO）</h5><p><img src="http://fluge.github.io/images/nonblocking.jpg" alt><br>process在<code>NonBlocking IO</code>读<code>recvfrom</code>操作的第一个阶段是不会block等待的，如果kernel数据还没准备好，那么<code>recvfrom</code>会立刻返回一个<code>EWOULDBLOCK</code>错误。当kernel准备好数据后，进入处理的第二阶段的时候，process会等待kernel将数据copy到自己的buffer，在kernel完成数据的copy后process才会从recvfrom系统调用中返回。</p>
+<h5 id="IO多路复用（NonBlocking-IO）"><a href="#IO多路复用（NonBlocking-IO）" class="headerlink" title="IO多路复用（NonBlocking IO）"></a>IO多路复用（NonBlocking IO）</h5><p><img src="http://fluge.github.io/images/multiplexing.jpg" alt><br>IO多路复用，就是我们熟知的<code>select</code>、<code>poll</code>、<code>epoll</code>模型。从图上可见，在IO多路复用的时候，process在两个处理阶段都是block住等待的。初看好像IO多路复用没什么用，其实select、poll、epoll的优势在于·<code>可以以较少的代价来同时监听处理多个IO</code>。</p>
+<!-- ### select -->
 
         </div>
         
@@ -359,10 +367,10 @@
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-16T16:47:40+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-27T16:41:09+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年5月16日</p>
+    <p>最后更新于 2019年5月27日</p>
   </a>
 </div>
 
@@ -371,7 +379,7 @@
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/TCP/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>TCP</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/select/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>select</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/epoll/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>epoll</p></a></div>
 
 
         
@@ -382,11 +390,11 @@
   <div class="-mob-share-list share-body">
     
       
-        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2017/02/08/我理解的TCP协议(二)---超市与重传/&title=我理解的TCP协议(二)---超时与重传 | fluge site&summary=原文TCP的可靠性不止建立在建立一个稳固的链接上，还有就是数据包丢失的重传机制,和防止网络波动的拥塞处理机制,这些都是慢慢发展而来的。要先了解TCP的重传和拥塞处理,需要先了解两个很常见的变量–RTT和RTO,这两个是对重传和拥塞很重要的概念。
-
-RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于路由器和网络流量均会变化，因此我们认为这个时间可能经常会发生变化，TCP应该跟踪这些变化并相应地改变其超时时间。RTO(Retransmission TimeOut):重传超时时间,是根据RTT计算得到的。   
-
-重传在重传机制中，首先在介绍重传的几个机制前，要注意。接收端给发送端的Ack确认只会确认最后一个连续的包。比如：发送端发了1,2,3,4,5一共五份数据，接收端收到了1,2,于是回ack 3,然后收到了4(注意此时3没收到，3丢失)此时的TCP会怎么办?我们要知道,因为正如前面所说的,SeqNum和Ack是以字节数为单位,所以ack的时候,不能跳着确认,只能确认最大的连续收到的包,不然,发送端就以为之前的都收到了。">
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/05/16/IO模型 --- select,poll,epoll/&title=IO模型 --- select,poll,epoll | fluge site&summary=最近在看网络编程模型，虽然Golang天然高并发的原因很大一部分是因为协程和channel,但是这个里面还是离不开底层的网络编程模型的选用 — epoll。在学习这部分的时候对IO多路复用做了一些了解。
+一些概念内核空间和用户空间现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，它的寻址空间（虚拟存储空间）为4G（2的32次方）。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。
+为了保证用户进程不能直接操作内核，保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。我们可以简单理解为，一张纸，四分之一给一个叫内核的人用，四分之三给一个叫用户的人用。
+fd 文件操作描述符文件描述符在形式上是一个非负整数,它是一个索引值,指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。文件描述符这一概念往往只适用于Unix和Linux这样的操作系统。
+缓存IO缓存 I/O 又被称作标准 I/O，大多数文件系统的默认 I/O 操作都是缓存 I/O。在 Linux 的缓存 I/O 机制中，操作系统会将 I/O 的数据缓存在文件系统的页缓存（ page cache ）中，也就是说，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。就是从内核空间到用户空间需要经过两次复制操作。这些数据拷贝操作所带来的 CPU 以及内存开销是非常大的。">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
           
@@ -394,11 +402,11 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
       
     
       
-        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2017/02/08/我理解的TCP协议(二)---超市与重传/&title=我理解的TCP协议(二)---超时与重传 | fluge site&summary=原文TCP的可靠性不止建立在建立一个稳固的链接上，还有就是数据包丢失的重传机制,和防止网络波动的拥塞处理机制,这些都是慢慢发展而来的。要先了解TCP的重传和拥塞处理,需要先了解两个很常见的变量–RTT和RTO,这两个是对重传和拥塞很重要的概念。
-
-RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于路由器和网络流量均会变化，因此我们认为这个时间可能经常会发生变化，TCP应该跟踪这些变化并相应地改变其超时时间。RTO(Retransmission TimeOut):重传超时时间,是根据RTT计算得到的。   
-
-重传在重传机制中，首先在介绍重传的几个机制前，要注意。接收端给发送端的Ack确认只会确认最后一个连续的包。比如：发送端发了1,2,3,4,5一共五份数据，接收端收到了1,2,于是回ack 3,然后收到了4(注意此时3没收到，3丢失)此时的TCP会怎么办?我们要知道,因为正如前面所说的,SeqNum和Ack是以字节数为单位,所以ack的时候,不能跳着确认,只能确认最大的连续收到的包,不然,发送端就以为之前的都收到了。">
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/05/16/IO模型 --- select,poll,epoll/&title=IO模型 --- select,poll,epoll | fluge site&summary=最近在看网络编程模型，虽然Golang天然高并发的原因很大一部分是因为协程和channel,但是这个里面还是离不开底层的网络编程模型的选用 — epoll。在学习这部分的时候对IO多路复用做了一些了解。
+一些概念内核空间和用户空间现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，它的寻址空间（虚拟存储空间）为4G（2的32次方）。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。
+为了保证用户进程不能直接操作内核，保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。我们可以简单理解为，一张纸，四分之一给一个叫内核的人用，四分之三给一个叫用户的人用。
+fd 文件操作描述符文件描述符在形式上是一个非负整数,它是一个索引值,指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。文件描述符这一概念往往只适用于Unix和Linux这样的操作系统。
+缓存IO缓存 I/O 又被称作标准 I/O，大多数文件系统的默认 I/O 操作都是缓存 I/O。在 Linux 的缓存 I/O 机制中，操作系统会将 I/O 的数据缓存在文件系统的页缓存（ page cache ）中，也就是说，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。就是从内核空间到用户空间需要经过两次复制操作。这些数据拷贝操作所带来的 CPU 以及内存开销是非常大的。">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
           
@@ -406,11 +414,11 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
       
     
       
-        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2017/02/08/我理解的TCP协议(二)---超市与重传/&title=我理解的TCP协议(二)---超时与重传 | fluge site&summary=原文TCP的可靠性不止建立在建立一个稳固的链接上，还有就是数据包丢失的重传机制,和防止网络波动的拥塞处理机制,这些都是慢慢发展而来的。要先了解TCP的重传和拥塞处理,需要先了解两个很常见的变量–RTT和RTO,这两个是对重传和拥塞很重要的概念。
-
-RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于路由器和网络流量均会变化，因此我们认为这个时间可能经常会发生变化，TCP应该跟踪这些变化并相应地改变其超时时间。RTO(Retransmission TimeOut):重传超时时间,是根据RTT计算得到的。   
-
-重传在重传机制中，首先在介绍重传的几个机制前，要注意。接收端给发送端的Ack确认只会确认最后一个连续的包。比如：发送端发了1,2,3,4,5一共五份数据，接收端收到了1,2,于是回ack 3,然后收到了4(注意此时3没收到，3丢失)此时的TCP会怎么办?我们要知道,因为正如前面所说的,SeqNum和Ack是以字节数为单位,所以ack的时候,不能跳着确认,只能确认最大的连续收到的包,不然,发送端就以为之前的都收到了。">
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/05/16/IO模型 --- select,poll,epoll/&title=IO模型 --- select,poll,epoll | fluge site&summary=最近在看网络编程模型，虽然Golang天然高并发的原因很大一部分是因为协程和channel,但是这个里面还是离不开底层的网络编程模型的选用 — epoll。在学习这部分的时候对IO多路复用做了一些了解。
+一些概念内核空间和用户空间现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，它的寻址空间（虚拟存储空间）为4G（2的32次方）。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。
+为了保证用户进程不能直接操作内核，保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。我们可以简单理解为，一张纸，四分之一给一个叫内核的人用，四分之三给一个叫用户的人用。
+fd 文件操作描述符文件描述符在形式上是一个非负整数,它是一个索引值,指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。文件描述符这一概念往往只适用于Unix和Linux这样的操作系统。
+缓存IO缓存 I/O 又被称作标准 I/O，大多数文件系统的默认 I/O 操作都是缓存 I/O。在 Linux 的缓存 I/O 机制中，操作系统会将 I/O 的数据缓存在文件系统的页缓存（ page cache ）中，也就是说，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。就是从内核空间到用户空间需要经过两次复制操作。这些数据拷贝操作所带来的 CPU 以及内存开销是非常大的。">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
           
@@ -432,40 +440,21 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
         
             <div class="prev-next">
                 
-                    <section class="prev">
-                        <span class="art-item-left">
-                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
-                            <h4>
-                                <a href="/2017/03/06/我理解的TCP协议(一)---链接的建立和终止/" rel="prev" title="我理解的TCP协议(一)---链接的建立和终止">
-                                  
-                                      我理解的TCP协议(一)---链接的建立和终止
-                                  
-                                </a>
-                            </h4>
-                            
-                                
-                                <h6 class="tags">
-                                    <a class="tag" href="/tags/TCP/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>TCP</a>
-                                </h6>
-                            
-                        </span>
-                    </section>
-                
                 
                     <section class="next">
                         <span class="art-item-right" aria-hidden="true">
                             <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
                             <h4>
-                                <a href="/2017/01/18/Java7的ConcurrentHashMap/" rel="prev" title="Java7的ConcurrentHashMap">
+                                <a href="/2017/08/29/二叉树的几种遍历方式/" rel="prev" title="二叉树的几种遍历方式">
                                     
-                                        Java7的ConcurrentHashMap
+                                        二叉树的几种遍历方式
                                     
                                 </a>
                             </h4>
                             
                                 
                                 <h6 class="tags">
-                                    <a class="tag" href="/tags/Java/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>Java</a>
+                                    <a class="tag" href="/tags/二叉树/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>二叉树</a>
                                 </h6>
                             
                         </span>
@@ -496,7 +485,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
 
   <script>
     window.subData = {
-      title: '我理解的TCP协议(二)---超时与重传',
+      title: 'IO模型 --- select,poll,epoll',
       tools: true
     }
   </script>
@@ -559,7 +548,7 @@ RTT(Round Trip Time):就是发送一个数据包的往返时间的测量,由于�
 </header>
 
     <div class="content pure">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#重传"><span class="toc-text">重传</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#超时重传"><span class="toc-text">超时重传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#快速重传"><span class="toc-text">快速重传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Selective-Acknowledgment（SACK）-方法"><span class="toc-text">Selective Acknowledgment（SACK） 方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-SACK-方法"><span class="toc-text">D-SACK 方法</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一些概念"><span class="toc-text">一些概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#内核空间和用户空间"><span class="toc-text">内核空间和用户空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fd-文件操作描述符"><span class="toc-text">fd 文件操作描述符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#缓存IO"><span class="toc-text">缓存IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux的socket-事件wakeup-callback机制"><span class="toc-text">Linux的socket 事件wakeup callback机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IO模型"><span class="toc-text">IO模型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#阻塞-I-O（blocking-IO）"><span class="toc-text">阻塞 I/O（blocking IO）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#非阻塞-I-O（NonBlocking-IO）"><span class="toc-text">非阻塞 I/O（NonBlocking IO）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#IO多路复用（NonBlocking-IO）"><span class="toc-text">IO多路复用（NonBlocking IO）</span></a></li></ol></li></ol></li></ol>
     </div>
   </section>
 
